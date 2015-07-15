@@ -116,7 +116,7 @@ public class Hex
   {
     this.radius = radius;
     this.height = 2 * radius;
-    this.rowHeight = 1.5f * radius;
+    this.rowHeight = 1.3f * radius;
     this.halfWidth = (float)Mathf.Sqrt((radius * radius) - ((radius / 2) * (radius / 2)));
     this.width = 2 * this.halfWidth;
   }
@@ -125,7 +125,8 @@ public class Hex
   {
     return new Vector3(
               (tileCoordinate.x * width) + ((tileCoordinate.y % 2 == 1) ? halfWidth : 0),
-              tileCoordinate.y * rowHeight, 0f);
+              tileCoordinate.y * rowHeight,
+              0f);
   }
 
   public Vector3 TileCenter(Vector2 tileCoordinate)

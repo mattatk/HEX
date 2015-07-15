@@ -39,6 +39,7 @@ public class ZoneManager : MonoBehaviour
   Transform boardHolder;
   List<Vector2> gridPositions;
   List<GameObject> tiles;
+  float stepHeight = .2f;
 
   public void Initialize ()
   {
@@ -62,19 +63,23 @@ public class ZoneManager : MonoBehaviour
   public void BoardSetup()
   {
     boardHolder = new GameObject("Zone Board").transform;
+    Transform bt = boardHolder.transform;
 
     Hex hex = new Hex(hexRadius);
 
-    for (int x=0; x<columns-1; x++)
+    for (int y=0; y<rows; y++)
     {
-      for (int y=0; y<rows; y++)
+      for (int x=0; x<columns; x++)
       {
         GameObject toInstantiate = floorTiles[Random.Range (0,floorTiles.Length)];
 
-        if(x == 0 || x == columns-2 || y == 0 || y == rows-1)
+        if(x == 0 || x == columns-1 || y == 0 || y == rows-1)
           toInstantiate = floorBorderTiles [Random.Range (0, floorBorderTiles.Length)];
 
         GameObject instance = (GameObject)Instantiate (toInstantiate, hex.TileCenter(new Vector2(x,y)), Quaternion.identity);
+        Transform t = instance.transform;
+        t.Translate(0,Random.Range(0,2)*stepHeight,0);
+        t.parent = bt;
         tiles.Add(instance);
       }
     }

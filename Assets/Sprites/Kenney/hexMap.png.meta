@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 547d67504b14d495d80612e8b73b5d15
-timeCreated: 1435658438
+timeCreated: 1436938062
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -8,6 +8,7 @@ TextureImporter:
     21300002: water_patch
     21300004: water_tall_2
     21300006: water_shallow_tall
+    21300008: grass
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -88,6 +89,16 @@ TextureImporter:
         serializedVersion: 2
         x: 195
         y: 347
+        width: 65
+        height: 89
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: grass
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 245
         width: 65
         height: 89
       alignment: 0
