@@ -12,20 +12,22 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
-  ZoneManager zm;
+  ZoneViewCamera zoneCameraControls;
+  ZoneManager zoneManager;
 
   void Awake ()
   {
-    zm = (ZoneManager)(GetComponent<ZoneManager>());
-
+    zoneManager = GetComponent<ZoneManager>();
+    zoneCameraControls = Camera.main.GetComponent<ZoneViewCamera>();
     BuildZone();
   }
 
   void BuildZone()
   {
-    zm.Initialize();
-    zm.BoardClear();
-    zm.BoardSetup();
+    zoneCameraControls.Initialize();
+    zoneManager.Initialize();
+    //zm.BoardClear();
+    //zm.BoardSetup();
   }
 
   void Update()
