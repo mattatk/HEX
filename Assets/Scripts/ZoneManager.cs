@@ -32,11 +32,13 @@ public class ZoneManager : MonoBehaviour
   Transform boardHolder;
   List<Vector2> gridPositions;
   List<Vector2> topTilePositions;
-  List<GameObject> tiles;
-  List<GameObject> botTiles;
-  float stepHeight = .08f; //proper offset of bottom tiles
-  float lastStep = 0.145f; //dy from top tile to first bot tile
-  bool right = false;
+
+  // Deprecated
+  //List<GameObject> tiles;
+  //List<GameObject> botTiles;
+  //float stepHeight = .08f; //proper offset of bottom tiles
+  //float lastStep = 0.145f; //dy from top tile to first bot tile
+  //bool right = false;
 
   GameObject currentZoneObject;
   public Zone currentZone;
@@ -87,7 +89,6 @@ public class ZoneManager : MonoBehaviour
     Vector3 zonePlacement = new Vector3(-1*height*zone.width, 0, sideAndAHalf*zone.width/-2);
     GameObject output = (GameObject)Instantiate(boardPrefab, zonePlacement, Quaternion.identity);
 
-    Renderer myRend = output.GetComponent<Renderer>();
     MeshFilter myFilter = output.GetComponent<MeshFilter>();
     MeshCollider myCollider = output.GetComponent<MeshCollider>();
 
@@ -232,6 +233,7 @@ public class ZoneManager : MonoBehaviour
 
   public void BoardSetup()
   {
+    /*
 	 boardHolder = new GameObject("Zone Board").transform;
     Transform bt = boardHolder.transform;
 
@@ -274,6 +276,7 @@ public class ZoneManager : MonoBehaviour
 				
       }
     }
+    */
   }
 
   public void Rotate(bool right)
@@ -306,6 +309,7 @@ public class ZoneManager : MonoBehaviour
 
   public void BoardClear() //This deletes tiles correctly but it needs to destroy the zone board game object created in BoardSetup
   {
+    /*
     if (tiles == null && botTiles == null)
       return;
 
@@ -318,5 +322,6 @@ public class ZoneManager : MonoBehaviour
 	  Destroy(g);
     }
     tiles.Clear();
+    */
   }
 }
