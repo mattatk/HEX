@@ -19,8 +19,6 @@ public class ZoneManager : MonoBehaviour
 
   public int columns = 8, rows = 8;
 
-  public float hexRadius = .3f;
-
   public Count wallCount = new Count(5,9);
 
   public GameObject[] floorTiles;
@@ -41,14 +39,13 @@ public class ZoneManager : MonoBehaviour
   //bool right = false;
 
   GameObject currentZoneObject;
-  public Zone currentZone;
+  int layermask;
 
-  public void Initialize ()
+  public void Initialize (Zone z)
   {
-    currentZone = new Zone();
-    currentZone.Generate(64);
+    currentZoneObject = RenderZone(z);
 
-    currentZoneObject = RenderZone(currentZone);
+    layermask = 1<<8;   // Layer 8 is set up as "Chunk" in the Tags & Layers manager
 
     /*
     if (gridPositions == null)
@@ -78,15 +75,7 @@ public class ZoneManager : MonoBehaviour
 
   GameObject RenderZone(Zone zone)
   {
-    float side = .25f;   // Main scaling unit for the hexagon
-
-    float root3 = Mathf.Sqrt(3);
-    float halfSide = side/2;
-    float height = root3 * side / 2;
-    float doubleHeight = height*2;
-    float sideAndAHalf = halfSide * 3;
-
-    Vector3 zonePlacement = new Vector3(-1*height*zone.width, 0, sideAndAHalf*zone.width/-2);
+    Vector3 zonePlacement = new Vector3(-1*Hex.bisect*zone.width, 0, Hex.sideAndAHalf*zone.width/-2);
     GameObject output = (GameObject)Instantiate(boardPrefab, zonePlacement, Quaternion.identity);
 
     MeshFilter myFilter = output.GetComponent<MeshFilter>();
@@ -99,12 +88,12 @@ public class ZoneManager : MonoBehaviour
 
     
     Vector3 origin,
-            v1 = new Vector3(0,0,side),
-            v2 = new Vector3(height, 0, halfSide),
-            v3 = new Vector3(height, 0, -halfSide),
-            v4 = new Vector3(0,0,-side),
-            v5 = new Vector3(-height,0,-halfSide),
-            v6 = new Vector3(-height, 0, halfSide);
+                v1 = new Vector3(0,0,Hex.edge),
+                v2 = new Vector3(Hex.bisect, 0, Hex.halfSide),
+                v3 = new Vector3(Hex.bisect, 0, -Hex.halfSide),
+                v4 = new Vector3(0,0,-Hex.edge),
+                v5 = new Vector3(-Hex.bisect,0,-Hex.halfSide),
+                v6 = new Vector3(-Hex.bisect, 0, Hex.halfSide);
 
     float texHeight = 868;
     float texWidth = 1006;            
@@ -129,12 +118,12 @@ public class ZoneManager : MonoBehaviour
             5         3=height, -side/2
                 4= 0,-side
         */
-        Vector3 tileHeight = new Vector3(0,currentZone.tiles[x, y].height,0);
-        float xOffset = x*doubleHeight;	
-        
-		if (y%2==1)
-          xOffset += height;
-        origin = new Vector3(xOffset, 0, y*sideAndAHalf);
+
+        float xOffset = x*Hex.doubleHeight;
+
+        if (y%2==1)
+          xOffset += Hex.bisect;
+        origin = new Vector3(xOffset, currentZone.tiles[x, y].height, y*Hex.sideAndAHalf);
 
         // Add the first hexagon. Vertex 0
         vertices.Add(origin);
@@ -399,4 +388,18 @@ public class ZoneManager : MonoBehaviour
     */
   }
 
+  public void OnTapInput(Vector2 tap)
+  {
+    RaycastHit hit;
+
+    if (Physics.Raycast(GameManager.cam.ScreenPointToRay(tap), out hit, 500, layermask))
+    {
+      int[] hexCoordSelected = Util.SquareToHexCoordinate(hit.point);
+
+      if (hexCoordSelected[0] == -1)
+        return;
+
+      Debug.Log(hexCoordSelected[0]+","+hexCoordSelected[1]);
+    }
+  }
 }

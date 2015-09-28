@@ -4,7 +4,24 @@ using System.Collections;
 
 public class Util
 {
+  public static int[] SquareToHexCoordinate(Vector2 square)
+  {
+    int[] hex = new int[2];
 
+    // Find the row and column of the box that the point falls in.
+    hex[1] = (int) (square.y / Hex.gridHeight);
+    int column;
+
+    bool rowIsOdd = hex[1] % 2 == 1;
+
+    // Is the row an odd number?
+    if (rowIsOdd)// Yes: Offset x to match the indent of the row
+      hex[0] = (int) ((square.x - Hex.bisect) / Hex.gridWidth);
+    else// No: Calculate normally
+      hex[0] = (int) (square.x / Hex.gridWidth);
+
+    return new int[]{0,0};
+  }
 }
 
 [Serializable]

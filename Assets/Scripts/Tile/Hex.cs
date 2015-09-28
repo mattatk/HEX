@@ -29,6 +29,21 @@ public class Hex
   private float height;
   private float rowHeight;
 
+  public const float edge = .25f;
+  public static float root3, halfSide, bisect, doubleHeight, sideAndAHalf, gridHeight, gridWidth;
+
+  public static void Initialize()
+  {
+    root3 = Mathf.Sqrt(3);
+    halfSide = edge/2;
+    bisect = root3 * edge / 2;
+    doubleHeight = bisect*2;
+    sideAndAHalf = halfSide * 3;
+
+    gridHeight = 8 * edge / 3;
+    gridWidth = bisect * 2;
+  }
+
   public Hex(float radius)
   {
     this.radius = radius;
