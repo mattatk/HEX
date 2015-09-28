@@ -7,13 +7,13 @@ public enum TileType {None, Grass, Hill};
 [Serializable]
 public class Tile
 {
-  public int height;
+  public float height;
 
   public TileType type;
 
   public Tile(){}
 
-  public Tile(int h)
+  public Tile(float h)
   {
     height = h;
   }

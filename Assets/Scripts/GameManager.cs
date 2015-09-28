@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
 
 
     // Interface
-    mainUI.Initialize();
+    //mainUI.Initialize(); TURN BACK ON LATER
   }
 
   void Update()
@@ -57,11 +57,11 @@ public class GameManager : MonoBehaviour
       BuildZone();
     }
 
-    roundManager.UpdateRound();
+    //roundManager.UpdateRound();  TURN BACK ON LATER
   }
 
   void OnGUI()
   {
-    mainUI.OnMainGUI();
+    //mainUI.OnMainGUI(); TURN BACK ON LATER
   }
 }

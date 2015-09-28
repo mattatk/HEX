@@ -99,12 +99,12 @@ public class ZoneManager : MonoBehaviour
 
     
     Vector3 origin,
-                v1 = new Vector3(0,0,side),
-                v2 = new Vector3(height, 0, halfSide),
-                v3 = new Vector3(height, 0, -halfSide),
-                v4 = new Vector3(0,0,-side),
-                v5 = new Vector3(-height,0,-halfSide),
-                v6 = new Vector3(-height, 0, halfSide);
+            v1 = new Vector3(0,0,side),
+            v2 = new Vector3(height, 0, halfSide),
+            v3 = new Vector3(height, 0, -halfSide),
+            v4 = new Vector3(0,0,-side),
+            v5 = new Vector3(-height,0,-halfSide),
+            v6 = new Vector3(-height, 0, halfSide);
 
     float texHeight = 868;
     float texWidth = 1006;            
@@ -123,47 +123,77 @@ public class ZoneManager : MonoBehaviour
       for (int y=0;y<zone.width; y++)
       {
         /*
-              1 = 0,side
-          6         2=height, side/2
-           origin(0)
-          5         3=height, -side/2
-              4= 0,-side
+                1 = 0,side
+            6         2=height, side/2
+            origin(0)
+            5         3=height, -side/2
+                4= 0,-side
         */
-
-        float xOffset = x*doubleHeight;
-
-        if (y%2==1)
+        Vector3 tileHeight = new Vector3(0,currentZone.tiles[x, y].height,0);
+        float xOffset = x*doubleHeight;	
+        
+		if (y%2==1)
           xOffset += height;
         origin = new Vector3(xOffset, 0, y*sideAndAHalf);
 
-        // Add the first hexagon
+        // Add the first hexagon. Vertex 0
         vertices.Add(origin);
         normals.Add(Vector3.up);
         uvs.Add(uv0);
-
+		//1
         vertices.Add(origin+v1);
         normals.Add(Vector3.up);
         uvs.Add(uv1);
-
+		//2
         vertices.Add(origin+v2);
         normals.Add(Vector3.up);
         uvs.Add(uv2);
-
+		//3
         vertices.Add(origin+v3);
         normals.Add(Vector3.up);
         uvs.Add(uv3);
-
+		//4
         vertices.Add(origin+v4);
         normals.Add(Vector3.up);
         uvs.Add(uv4);
-
+		//5
         vertices.Add(origin+v5);
         normals.Add(Vector3.up);
         uvs.Add(uv5);
-
+		//6
         vertices.Add(origin+v6);
         normals.Add(Vector3.up);
         uvs.Add(uv6);
+		
+		//Second hex for depth.  Vertex 7
+		vertices.Add (origin+ tileHeight);
+		normals.Add (Vector3.up);
+		uvs.Add (uv0);
+		//8
+		vertices.Add (origin+v1+ tileHeight);
+		normals.Add (Vector3.up);
+		uvs.Add (uv1);
+		//9
+		vertices.Add (origin+v2+ tileHeight);
+		normals.Add (Vector3.up);
+		uvs.Add (uv2);
+		//10
+		vertices.Add (origin+v3+ tileHeight);
+		normals.Add (Vector3.up);
+		uvs.Add (uv3);
+		//11
+		vertices.Add (origin+v4+ tileHeight);
+		normals.Add (Vector3.up);
+		uvs.Add (uv4);
+		//12
+		vertices.Add (origin+v5+ tileHeight);
+		normals.Add (Vector3.up);
+		uvs.Add (uv5);
+		//13
+		vertices.Add (origin+v6+ tileHeight);
+		normals.Add (Vector3.up);
+		uvs.Add (uv6);
+
         /*
               .....
              / 6|  /\
@@ -172,7 +202,8 @@ public class ZoneManager : MonoBehaviour
            \  /4|3\  /
             \/..|..\/
         */
-
+		/*
+        //We don't need the bottom face anymore
         // Triangle 1
         triangles.Add(counter);
         triangles.Add(counter+1);
@@ -197,8 +228,79 @@ public class ZoneManager : MonoBehaviour
         triangles.Add(counter);
         triangles.Add(counter+6);
         triangles.Add(counter+1);
+		*/
 
-        counter += 7;
+		//Height Triangle 7
+		triangles.Add (counter + 7);
+		triangles.Add (counter + 13);
+		triangles.Add (counter + 8);
+		//8
+		triangles.Add (counter + 7);
+		triangles.Add (counter + 8);
+		triangles.Add (counter + 9);
+		//9
+		triangles.Add (counter + 7);
+		triangles.Add (counter + 9);
+		triangles.Add (counter + 10);
+		//10
+		triangles.Add (counter + 7);
+		triangles.Add (counter + 10);
+		triangles.Add (counter + 11);
+		//11
+		triangles.Add (counter + 7);
+		triangles.Add (counter + 11);
+		triangles.Add (counter + 12);
+		//12
+		triangles.Add (counter + 7);
+		triangles.Add (counter + 12);
+		triangles.Add (counter + 13);
+
+
+        //The 6 Parallelograms (12 triangles) which complete the hexagon
+
+        triangles.Add(counter + 1);
+        triangles.Add(counter + 8);
+        triangles.Add(counter + 13);
+        triangles.Add (counter + 1);
+		triangles.Add (counter + 13);
+		triangles.Add (counter + 6);
+		
+		triangles.Add (counter + 2);
+		triangles.Add (counter + 8);
+		triangles.Add (counter + 1);
+		triangles.Add (counter + 2);
+		triangles.Add (counter + 9);
+		triangles.Add (counter + 8);
+
+		triangles.Add (counter + 3);
+		triangles.Add (counter + 9);
+		triangles.Add (counter + 2);
+		triangles.Add (counter + 3);
+		triangles.Add (counter + 10);
+		triangles.Add (counter + 9);
+
+		triangles.Add (counter + 4);
+		triangles.Add (counter + 10);
+		triangles.Add (counter + 3);
+		triangles.Add (counter + 4);
+		triangles.Add (counter + 11);
+		triangles.Add (counter + 10);
+
+		triangles.Add (counter + 5);
+		triangles.Add (counter + 11);
+		triangles.Add (counter + 4);
+		triangles.Add (counter + 5);
+		triangles.Add (counter + 12);
+		triangles.Add (counter + 11);
+
+		triangles.Add (counter + 6);
+		triangles.Add (counter + 12);
+		triangles.Add (counter + 5);
+		triangles.Add (counter + 6);
+		triangles.Add (counter + 13);
+		triangles.Add (counter + 12);
+		
+        counter += 14;
       }
     }
 
@@ -279,35 +381,7 @@ public class ZoneManager : MonoBehaviour
     */
   }
 
-  public void Rotate(bool right)
-  {
-	  /*
-		Notes:
-		We should rotate the grid 60 degrees, so that when we rotate we still have a vertex facing down and can use these sprites.
-		We probably need to rebuild the grid when we rotate.  Not the best solution but I think we have to
-		because of how we're drawing the shapes.
-		So, we need to keep the data of how high up the top tiles are and how many bottom tiles need to be drawn, that means BoardSetup has to change.
-		It won't look good if we do this, we'll still want to be able to show the board actually rotating to the player, 
-		maybe we shouldn't do it this way at all.
-		This function should probably just set up correct conditions (according to changes in BoardSetup) and call BoardSetup
-	
-		Right now this just rebuilds the board randomly when you press left or right arrows.
-	  */
-  	if(right == false)
-  	{
-  	  //Do something to make the board rotate left when board setup is called
-  	  BoardClear ();
-  	  BoardSetup();
-  	}
-  	else
-  	{
-  	  //Do right
-  	  BoardClear ();
-  	  BoardSetup ();
-  	}
-  }
-
-  public void BoardClear() //This deletes tiles correctly but it needs to destroy the zone board game object created in BoardSetup
+  public void BoardClear()
   {
     /*
     if (tiles == null && botTiles == null)
@@ -324,4 +398,5 @@ public class ZoneManager : MonoBehaviour
     tiles.Clear();
     */
   }
+
 }

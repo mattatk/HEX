@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Zone {
 
-  Tile[,] tiles;
+  public Tile[,] tiles;
   public int width;
 
   ZoneRelationship[] neighbors;
@@ -17,9 +17,16 @@ public class Zone {
     {
       for (int y=0; y<width; y++)
       {
-        tiles[x,y] = new Tile(Random.Range(0,3));
+        tiles[x,y] = new Tile(Height(x,y));
+        
       }
     }
+  }
+
+  //Making this a seperate function so we can add complexity more easily
+  float Height(float x, float y)
+  {
+    return (0.001f * (Mathf.Pow(x, 2) + Mathf.Pow(y, 2)));
   }
 }
 

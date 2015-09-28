@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿/* AINT WORKIN BREH
+
+using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 
@@ -14,3 +16,4 @@ public class ClientHub : NetworkBehaviour {
 	
 	}
 }
+*/
