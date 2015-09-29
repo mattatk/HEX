@@ -44,6 +44,7 @@ public class ZoneManager : MonoBehaviour
 
   void Update()
   {
+    /*
     if (Input.GetKeyDown(KeyCode.Space))
     {
       Destroy (currentZoneObject);
@@ -53,6 +54,7 @@ public class ZoneManager : MonoBehaviour
       GameManager.currentZone.SpreadGrass();
       currentZoneObject = zoneRenderer.RenderZone(GameManager.currentZone);
     }
+    */
     
   }
 

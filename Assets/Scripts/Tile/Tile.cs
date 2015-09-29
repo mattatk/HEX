@@ -11,6 +11,8 @@ public class Tile
 
   public bool border;
 
+  public bool posBorderCheck;
+
   public TileType type;
 
   public Tile(){}
