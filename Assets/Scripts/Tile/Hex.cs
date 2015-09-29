@@ -23,11 +23,7 @@ public enum Direction
 
 public class Hex
 {
-  private float radius;
-  private float width;
-  private float halfWidth;
-  private float height;
-  private float rowHeight;
+  private static float radius, width, halfWidth, height, rowHeight;
 
   public const float edge = .25f;
   public static float root3, halfSide, bisect, doubleHeight, sideAndAHalf, gridHeight, gridWidth;
@@ -42,15 +38,6 @@ public class Hex
 
     gridHeight = 8 * edge / 3;
     gridWidth = bisect * 2;
-  }
-
-  public Hex(float radius)
-  {
-    this.radius = radius;
-    this.height = 2 * radius;
-    this.rowHeight = 1.3f * radius;
-    this.halfWidth = (float)Mathf.Sqrt((radius * radius) - ((radius / 2) * (radius / 2)));
-    this.width = 2 * this.halfWidth;
   }
 
   public Vector3 TileOrigin(Vector2 tileCoordinate)
@@ -124,7 +111,7 @@ public class Hex
     return tile;
   }
 
-  public Vector2 TileAt(Vector3 worldCoordinate)
+  public static Vector2 TileAt(Vector3 worldCoordinate)
   {
     float rise = height - rowHeight;
     float slope = rise / halfWidth;

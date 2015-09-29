@@ -9,13 +9,20 @@ public class Tile
 {
   public float height;
 
+  public bool border;
+
   public TileType type;
 
   public Tile(){}
 
-  public Tile(float h)
+  public Tile(float probability)
   {
-    height = h;
+    if (UnityEngine.Random.Range(0, 1.0f) < probability)
+    {
+      type = TileType.Grass;
+    }
+    else
+      type = TileType.None;
   }
 
   public virtual void OnUnitEnter(){}

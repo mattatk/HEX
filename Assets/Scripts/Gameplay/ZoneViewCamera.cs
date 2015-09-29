@@ -3,11 +3,12 @@ using System.Collections;
 
 public class ZoneViewCamera : MonoBehaviour {
 
-  public float tapRadius = 20;
+  float tapRadius = .1f;
 
   float tapRadiusSquared;
   Transform myTrans;
-  float speed = .1f;
+  float dragSpeed = .3f;
+  float zoomSpeed = 50;
   bool dragging;
   Vector2 dragStartPos;
 
@@ -30,9 +31,9 @@ public class ZoneViewCamera : MonoBehaviour {
     if (Input.GetMouseButton(0))
     {  
       Vector2 touchDeltaPosition = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) - dragStartPos;
-      
+
       if (touchDeltaPosition.sqrMagnitude > tapRadiusSquared)
-        myTrans.Translate(-touchDeltaPosition.x * speed, -touchDeltaPosition.y * speed, 0);
+        myTrans.Translate(-touchDeltaPosition.x * dragSpeed, -touchDeltaPosition.y * dragSpeed, 0);
     }
 
     // Releasing
@@ -46,7 +47,7 @@ public class ZoneViewCamera : MonoBehaviour {
     }
 
     // Zooming in/out
-    float scroll = Input.GetAxis("Mouse ScrollWheel") * 25;
+    float scroll = Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
     if (scroll != 0)
     {
       myTrans.Translate(Vector3.forward * scroll * Time.deltaTime);

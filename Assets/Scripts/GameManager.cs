@@ -59,15 +59,7 @@ public class GameManager : MonoBehaviour
     //mainUI.Initialize(); TURN BACK ON LATER
   }
 
-  void Update()
-  {
-    if (Input.GetKeyDown(KeyCode.Space))
-    {
-      BuildZone();
-    }
-
     //roundManager.UpdateRound();  TURN BACK ON LATER
-  }
 
   void OnGUI()
   {
