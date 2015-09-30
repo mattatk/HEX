@@ -16,7 +16,7 @@ public class Tile
 
   public Tile(){}
 
-  public Tile(float probability)
+  public Tile(float probability)    // AKA "bay area"
   {
     if (UnityEngine.Random.Range(0, 1.0f) < probability)
     {
@@ -24,6 +24,20 @@ public class Tile
     }
     else
       type = TileType.None;
+
+    height = 1;
+  }
+  
+  public Tile(float x, float y, float probability)
+  {
+    if (Mathf.PerlinNoise((float)x,(float)y) > probability)
+    {
+      type = TileType.Grass;
+    }
+    else
+      type = TileType.None;
+
+    height = 1;//Mathf.PerlinNoise((float)x,(float)y);
   }
 
   public virtual void OnUnitEnter(){}
