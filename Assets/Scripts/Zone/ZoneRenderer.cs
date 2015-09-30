@@ -183,10 +183,10 @@ public class ZoneRenderer : MonoBehaviour
 
         //The 6 Parallelograms (12 triangles) which complete the hexagon
 
-        triangles.Add(counter + 1);
-        triangles.Add(counter + 8);
-        triangles.Add(counter + 13);
-        triangles.Add (counter + 1);
+    triangles.Add(counter + 1);
+    triangles.Add(counter + 8);
+    triangles.Add(counter + 13);
+    triangles.Add (counter + 1);
     triangles.Add (counter + 13);
     triangles.Add (counter + 6);
     
@@ -225,9 +225,9 @@ public class ZoneRenderer : MonoBehaviour
     triangles.Add (counter + 13);
     triangles.Add (counter + 12);
     
-        counter += 14;
-      }
+    counter += 14;
     }
+  }
 
 
     Mesh m = new Mesh();

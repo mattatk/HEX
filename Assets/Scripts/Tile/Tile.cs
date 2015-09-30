@@ -10,8 +10,7 @@ public class Tile
   public float height;
 
   public bool border;
-
-  public bool posBorderCheck;
+  public bool posBorderCheck= false;
 
   public TileType type;
 
