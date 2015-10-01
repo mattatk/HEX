@@ -38,12 +38,11 @@ public class Zone {
     SpreadGround(4);
     //3rd: Refine ground
     RefineGround();
-    // 4th: Border manipulations
-    //SetBorders();
-    //SpreadGround();
-
+    //4th SetHeights
     SetHeightsByPerlin(.1f, 10);
     SetHeightsByPerlin(.6f, 3);
+    SetHeightsByPerlin(.3f, 6);
+    
   }
 
   public void SimulateLife(){
@@ -192,6 +191,7 @@ public class Zone {
             }
         }
     }
+    
     public void SetBorders()
     {
         int neighborCount = 0;
@@ -202,41 +202,27 @@ public class Zone {
             {
                 // count empty neighbors (6)
                 neighborCount = 0;
+                Vector2 e = Hex.Neighbor(new Vector2(x, y), Direction.East),
+                        ne = Hex.Neighbor(new Vector2(x, y), Direction.NorthEast),
+                        se = Hex.Neighbor(new Vector2(x, y), Direction.SouthEast),
+                        w = Hex.Neighbor(new Vector2(x, y), Direction.West),
+                        nw = Hex.Neighbor(new Vector2(x, y), Direction.NorthWest),
+                        sw = Hex.Neighbor(new Vector2(x, y), Direction.SouthWest); 
 
-                for (int xNeighb = -1; xNeighb <= 1; xNeighb++)
+                if (tiles[(int)e.x, (int)e.y].type == TileType.None || tiles[(int)ne.x, (int)ne.y].type == TileType.None ||
+                    tiles[(int)se.x, (int)se.y].type == TileType.None || tiles[(int)w.x, (int)w.y].type == TileType.None ||
+                    tiles[(int)nw.x, (int)nw.y].type == TileType.None || tiles[(int)sw.x, (int)sw.y].type == TileType.None )
                 {
-                    for (int yNeighb = -1; yNeighb <= 1; yNeighb++)
-                    {
-                        if ((x + xNeighb < 0 || x + xNeighb > width - 1 || y + yNeighb < 0 || y + yNeighb > width - 1))
-                            continue;
-                        if (y % 2 == 0) //even
-                        {
-                            if ((yNeighb == 1 && xNeighb == 1) || (yNeighb == -1 && xNeighb == 1))
-                            {
-                                continue;
-                            }
-                        }
-                        else //odd
-                        {
-                            if ((yNeighb == 1 && xNeighb == -1) || (yNeighb == -1 && xNeighb == -1))
-                            {
-                                continue;
-                            }
-                        }
-                      
-                        if (tiles[x + xNeighb, y + yNeighb].type == TileType.None)
-                        {
-                            neighborCount++;
-                        }
-                       
-                    }
+                    neighborCount++;
                 }
                 if (neighborCount > 0)
                 {
                     tiles[x, y].border = true;
-                }                
+                    tiles[x, y].type = TileType.Border;
+                }
             }
         }
+                          
     }
     //needs to make the continents between borders and put each land segment into its own array, in order to compare size later and keep the biggest one or few
     public void FillBorders()

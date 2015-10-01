@@ -2,7 +2,7 @@
 using System;
 using System.Collections;
 
-public enum TileType {None, Grass, Hill};
+public enum TileType {None, Grass, Hill, Border};
 
 [Serializable]
 public class Tile

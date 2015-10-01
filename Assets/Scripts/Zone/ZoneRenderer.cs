@@ -28,15 +28,16 @@ public class ZoneRenderer : MonoBehaviour
                 v5 = new Vector3(-Hex.bisect,0,-Hex.halfSide),
                 v6 = new Vector3(-Hex.bisect, 0, Hex.halfSide);
 
-    float texHeight = 868;
-    float texWidth = 1006;            
-    Vector2 uv0 = new Vector2(503/texWidth,434/texHeight),
-            uv1 = new Vector2(754/texWidth, 1),
-            uv2 = new Vector2(1,.5f),
+    float texHeight = 1024;
+    float texWidth = 1282;
+    float root3 = Mathf.Sqrt(3);           
+    Vector2 uv0 = new Vector2(128/texWidth,128/texHeight),
+            uv1 = new Vector2(192/texWidth, 256/texHeight),
+            uv2 = new Vector2(256/texWidth, uv0.y/texHeight),
             uv3 = new Vector2(uv1.x, 0),
-            uv4 = new Vector2(252/texWidth,0),
-            uv5 = new Vector2(0,.5f),
-            uv6 = new Vector2(uv4.x,1);
+            uv4 = new Vector2(64/texWidth,0),
+            uv5 = new Vector2(0,uv0.y/texHeight),
+            uv6 = new Vector2(uv4.x,uv1.y);
 
     int counter = 0;
     for (int x=0; x<zone.width; x++)

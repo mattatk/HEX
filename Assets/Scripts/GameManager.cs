@@ -14,6 +14,8 @@ public enum GameState {None, MainMenu, GalaxyMap, WorldMap, ZoneMap};
 
 public class GameManager : MonoBehaviour
 {
+  public GameObject water;
+
   public static Zone currentZone;
 
   static GameState state;
@@ -33,7 +35,7 @@ public class GameManager : MonoBehaviour
     zoneCameraControls =  Camera.main.GetComponent<ZoneViewCamera>();
     mainUI =              GetComponent<MainUI>();
     roundManager =        GetComponent<RoundManager>();
-
+   // water = (GameObject)Instantiate(water,new Vector3(0,(float)Random.Range(4,5),0),Quaternion.identity);
     Hex.Initialize();
     
     BuildZone();
