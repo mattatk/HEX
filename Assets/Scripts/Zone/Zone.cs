@@ -10,78 +10,113 @@ public class Zone {
 
   ZoneRelationship[] neighbors;
 
-  public void Generate(int w)
+  public Zone(){}
+
+  public Zone(int w)
   {
     width = w;
     tiles = new Tile[width, width];
 
+    int randX = Random.Range(-99999,99999);
+    int randY = Random.Range(-99999,99999);
+
+
     // 1st pass: random seed noise in Perlin
+
     for (int x=0; x<width; x++)
     {
       for (int y=0; y<width; y++)
       {
-        tiles[x,y] = new Tile(.4f);//Height(x,y));
+        //tiles[x,y] = new Tile(.4f);   // Bay area lol
+        float seedx = Random.Range(-100,100);
+        float seedy = Random.Range(-100,100);
+        tiles[x,y] = new Tile(x/(float)width+seedx,y/(float)width+seedy,.5f);
       }
     }
 
     // 2nd pass: Spread ground
-    SpreadGround();
+    SpreadGround(4);
     //3rd: Refine ground
     RefineGround();
     // 4th: Border manipulations
     //SetBorders();
+    //SpreadGround();
+
+    SetHeightsByPerlin(.1f, 10);
+    SetHeightsByPerlin(.6f, 3);
   }
 
-  public void SpreadGround()
-  { 
-    Tile[,] oldTiles = new Tile[width,width];
-    for(int i = 1; i < 3; i++)  //Increase i bounds to iterate the grid more times
-    {
+  public void SimulateLife(){
+
+  }
+
+  void SetHeightsByPerlin(float scale, int lacunarity)
+  {
+    float seedx = Random.Range(-100,100);
+        float seedy = Random.Range(-100,100);
+
     for (int x=0; x<width; x++)
     {
       for (int y=0; y<width; y++)
       {
-        oldTiles[x,y] = tiles[x,y];
+        
+
+        float height = (int)(Mathf.PerlinNoise((float)x/width+seedx,(float)y/width+seedy) * lacunarity) * scale;
+        tiles[x,y].height += height;
       }
     }
+  }
 
-    for (int x=0; x<width; x++)
+  public void SpreadGround(int iterations)
+  { 
+    Tile[,] oldTiles = new Tile[width,width];
+    for(int i = 1; i < iterations; i++)  //Increase i bounds to iterate the grid more times
     {
-      for (int y=0; y<width; y++)
+      for (int x=0; x<width; x++)
       {
-        // count neighbors
-        int neighborGroundCount = 0;
-        int neighborEmptyCount = 0;
-        for (int xNeighb=-1; xNeighb<=1; xNeighb++)
+        for (int y=0; y<width; y++)
         {
-          for (int yNeighb=-1; yNeighb<=1; yNeighb++)
-          {
-            if ((x+xNeighb < 0 || x+xNeighb > width-1 || y+yNeighb < 0 || y+yNeighb > width-1))
-              continue;
+          oldTiles[x,y] = tiles[x,y];
+        }
+      }
 
-            if (oldTiles[x+xNeighb,y+yNeighb].type != TileType.None)
+      for (int x=0; x<width; x++)
+      {
+        for (int y=0; y<width; y++)
+        {
+          // count neighbors
+          int neighborGroundCount = 0;
+          int neighborEmptyCount = 0;
+          for (int xNeighb=-1; xNeighb<=1; xNeighb++)
+          {
+            for (int yNeighb=-1; yNeighb<=1; yNeighb++)
             {
-              neighborGroundCount++;
-            }
-            if (oldTiles[x + xNeighb, y + yNeighb].type == TileType.None)
-            {
-                neighborEmptyCount++;
+              if ((x+xNeighb < 0 || x+xNeighb >= width || y+yNeighb < 0 || y+yNeighb >= width) )
+                continue;     
+
+              if (oldTiles[x+xNeighb,y+yNeighb].type != TileType.None)
+              {
+                neighborGroundCount++;
+              }
+
+              if (oldTiles[x + xNeighb, y + yNeighb].type == TileType.None)
+              {
+                  neighborEmptyCount++;
+              }
             }
           }
-        }
+      
+          //How about this: if your neighbor grass count is higher than neighbor empty count, become a grass  
+          // If we have >5 neighbors, become wall
+          if (oldTiles[x,y].type == TileType.Grass || neighborGroundCount >= 5)
+          {
+              tiles[x,y].type = TileType.Grass;
+          }
 
-        // If we have >5 neighbors, become wall
-        if (oldTiles[x,y].type == TileType.Grass || neighborGroundCount >= 5)
-        {
-            tiles[x,y].type = TileType.Grass;
-        }
-
-        if(neighborGroundCount <= 2)
-        {
-            tiles[x,y].type = TileType.None;
-        }
-
-        
+          if(neighborGroundCount <= 2)
+          {
+              tiles[x,y].type = TileType.None;
+          }
        }
      }
     }
@@ -227,35 +262,61 @@ public class Zone {
     bool walk = false;
     public void RecursiveFill(int x, int y)
     {
-        walk = false;
-        while (walk)
-        {
+      walk = false;
+      while (walk)
+      {
 
-        }
-        for (int xNeighb = -1; xNeighb <= 1; xNeighb++)
+      }
+      for (int xNeighb = -1; xNeighb <= 1; xNeighb++)
+      {
+          for (int yNeighb = -1; yNeighb <= 1; yNeighb++)
+          {
+              if ((x + xNeighb < 0 || x + xNeighb > width - 1 || y + yNeighb < 0 || y + yNeighb > width - 1))
+                  continue;
+              if (y % 2 == 0) //even
+              {
+                  if ((yNeighb == 1 && xNeighb == 1) || (yNeighb == -1 && xNeighb == 1))
+                  {
+                      continue;
+                  }
+              }
+              else //odd
+              {
+                  if ((yNeighb == 1 && xNeighb == -1) || (yNeighb == -1 && xNeighb == -1))
+                  {
+                      continue;
+                  }
+              }
+          }
+      }
+
+      // count empty neighbors (6)
+      int neighborCount = 0;
+
+      for (int xNeighb = -1; xNeighb <= 1; xNeighb++)
+      {
+        for (int yNeighb = -1; yNeighb <= 1; yNeighb++)
         {
-            for (int yNeighb = -1; yNeighb <= 1; yNeighb++)
-            {
-                if ((x + xNeighb < 0 || x + xNeighb > width - 1 || y + yNeighb < 0 || y + yNeighb > width - 1))
-                    continue;
-                if (y % 2 == 0) //even
-                {
-                    if ((yNeighb == 1 && xNeighb == 1) || (yNeighb == -1 && xNeighb == 1))
-                    {
-                        continue;
-                    }
-                }
-                else //odd
-                {
-                    if ((yNeighb == 1 && xNeighb == -1) || (yNeighb == -1 && xNeighb == -1))
-                    {
-                        continue;
-                    }
-                }
-            }
-        }
+          if ((x+xNeighb < 0 || x+xNeighb > width - 1 || y + yNeighb < 0 || y + yNeighb > width - 1))
+              continue;
+          
+          if (tiles[x+xNeighb, y+yNeighb].type == TileType.None)
+          {
+            neighborCount++;
+          }
+          if (tiles[x + xNeighb, y + yNeighb].border == true && !(tiles[x + xNeighb, y + yNeighb].type == TileType.None))
+          {
+            
+          }
+        }   
+      }
+      if (neighborCount > 0)
+      {
+        tiles[x, y].border = true;
+      }
     }
 
+  //Making this a seperate function so we can add complexity more easily
   float Height(float x, float y)
   {
     return Mathf.PerlinNoise(x,y);

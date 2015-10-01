@@ -48,8 +48,7 @@ public class GameManager : MonoBehaviour
     // Network
 
     // Zone
-    currentZone = new Zone();
-    currentZone.Generate(32);
+    currentZone = new Zone(64);
     zoneManager.Initialize(currentZone);
 
     // Scene
