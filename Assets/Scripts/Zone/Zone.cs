@@ -30,19 +30,47 @@ public class Zone {
         //tiles[x,y] = new Tile(.4f);   // Bay area lol
         float seedx = Random.Range(-100,100);
         float seedy = Random.Range(-100,100);
-        tiles[x,y] = new Tile(x/(float)width+seedx,y/(float)width+seedy,.5f);
+        //tiles[x,y] = new Tile(x/(float)width+seedx,y/(float)width+seedy,.5f);
+        tiles[x,y] = new Tile(x,y, .8f);
       }
     }
 
     // 2nd pass: Spread ground
-    SpreadGround(4);
+    SpreadGround(4, TileType.Grass);
     //3rd: Refine ground
     RefineGround();
     //4th SetHeights
-    SetHeightsByPerlin(.1f, 10);
+    SetHeightsByPerlin(.2f, 10);
     SetHeightsByPerlin(.6f, 3);
     SetHeightsByPerlin(.3f, 6);
-    
+    SetTypeByHeight();
+  }
+
+  void SetTypeByHeight()
+  {
+    int rx = Random.Range(-100,100), ry = Random.Range(-100,100);
+
+    for (int x=0; x<width; x++)
+    {
+      for (int y=0; y<width; y++)
+      {
+        float xs = (float)x/width*5, ys = (float)y/width*5;
+        float perlin = Mathf.PerlinNoise(xs+rx,ys+ry) * 10;
+        float height = tiles[x,y].height;
+        float sum = perlin/2+height*2;
+
+        if (sum > 7)
+          tiles[x,y].type = TileType.Desert;
+        else if (sum > 5)
+          tiles[x,y].type = TileType.Rock;
+        else if (sum > 4)
+          tiles[x,y].type = TileType.GrassSparse;
+        else if (sum > 2)
+          tiles[x,y].type = TileType.Grass;
+        else
+          tiles[x,y].type = TileType.Water;
+      }
+    }
   }
 
   public void SimulateLife(){
@@ -58,15 +86,13 @@ public class Zone {
     {
       for (int y=0; y<width; y++)
       {
-        
-
         float height = (int)(Mathf.PerlinNoise((float)x/width+seedx,(float)y/width+seedy) * lacunarity) * scale;
         tiles[x,y].height += height;
       }
     }
   }
 
-  public void SpreadGround(int iterations)
+  public void SpreadGround(int iterations, TileType groundType)
   { 
     Tile[,] oldTiles = new Tile[width,width];
     for(int i = 1; i < iterations; i++)  //Increase i bounds to iterate the grid more times
@@ -109,7 +135,7 @@ public class Zone {
           // If we have >5 neighbors, become wall
           if (oldTiles[x,y].type == TileType.Grass || neighborGroundCount >= 5)
           {
-              tiles[x,y].type = TileType.Grass;
+              tiles[x,y].type = groundType;
           }
 
           if(neighborGroundCount <= 2)
@@ -180,7 +206,7 @@ public class Zone {
                             //tiles[x, y].type = TileType.None;
                             continue;
                         }
-                        if (tiles[x + xNeighb, y + yNeighb].type == TileType.Grass)
+                        if (tiles[x + xNeighb, y + yNeighb].type != TileType.None)
                             neighborCount++;
                     }
                 }
@@ -201,13 +227,14 @@ public class Zone {
             for (int y = 0; y < width; y++)
             {
                 // count empty neighbors (6)
+              Vector2 v = new Vector2(x, y);
                 neighborCount = 0;
-                Vector2 e = Hex.Neighbor(new Vector2(x, y), Direction.East),
-                        ne = Hex.Neighbor(new Vector2(x, y), Direction.NorthEast),
-                        se = Hex.Neighbor(new Vector2(x, y), Direction.SouthEast),
-                        w = Hex.Neighbor(new Vector2(x, y), Direction.West),
-                        nw = Hex.Neighbor(new Vector2(x, y), Direction.NorthWest),
-                        sw = Hex.Neighbor(new Vector2(x, y), Direction.SouthWest); 
+                Vector2 e = Hex.Neighbor(v, Direction.East),
+                        ne = Hex.Neighbor(v, Direction.NorthEast),
+                        se = Hex.Neighbor(v, Direction.SouthEast),
+                        w = Hex.Neighbor(v, Direction.West),
+                        nw = Hex.Neighbor(v, Direction.NorthWest),
+                        sw = Hex.Neighbor(v, Direction.SouthWest); 
 
                 if (tiles[(int)e.x, (int)e.y].type == TileType.None || tiles[(int)ne.x, (int)ne.y].type == TileType.None ||
                     tiles[(int)se.x, (int)se.y].type == TileType.None || tiles[(int)w.x, (int)w.y].type == TileType.None ||

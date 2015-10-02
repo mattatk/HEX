@@ -15,6 +15,8 @@ using Random = UnityEngine.Random;
 public class ZoneManager : MonoBehaviour
 {
   // === Public ===
+  public TileSet regularTileSet;
+
   public int columns = 8, rows = 8;
 
   public Count wallCount = new Count(5,9);
@@ -49,7 +51,7 @@ public class ZoneManager : MonoBehaviour
       Destroy (currentZoneObject);
       //GameManager.currentZone.SimulateLife();
       GameManager.currentZone = new Zone (64);
-      currentZoneObject = zoneRenderer.RenderZone(GameManager.currentZone);
+      currentZoneObject = zoneRenderer.RenderZone(GameManager.currentZone, regularTileSet);
     }
   }
 
@@ -57,23 +59,13 @@ public class ZoneManager : MonoBehaviour
   {
     zoneRenderer = GetComponent<ZoneRenderer>();
 
-    currentZoneObject = zoneRenderer.RenderZone(z);
+    currentZoneObject = zoneRenderer.RenderZone(z, regularTileSet);
 
     layermask = 1<<8;   // Layer 8 is set up as "Chunk" in the Tags & Layers manager
   }
 
   public void OnTapInput(Vector2 tap)
   {
-    RaycastHit hit;
-
-    if (Physics.Raycast(GameManager.cam.ScreenPointToRay(tap), out hit, 500, layermask))
-    {
-      Vector2 hexCoordSelected = Hex.TileAt(hit.point);
-
-      if (hexCoordSelected[0] == -1)
-        return;
-
-      Debug.Log(hexCoordSelected.x+","+hexCoordSelected.y);
-    }
+    
   }
 }

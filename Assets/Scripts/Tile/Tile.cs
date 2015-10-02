@@ -2,7 +2,7 @@
 using System;
 using System.Collections;
 
-public enum TileType {None, Grass, Hill, Border};
+public enum TileType {None, Grass, GrassSparse, Rock, Hill, Desert, Water, Border};
 
 [Serializable]
 public class Tile
@@ -25,19 +25,19 @@ public class Tile
     else
       type = TileType.None;
 
-    height = 1;
+    height = 0;
   }
   
   public Tile(float x, float y, float probability)
   {
-    if (Mathf.PerlinNoise((float)x,(float)y) > probability)
+    if (Mathf.PerlinNoise((float)x,(float)y) < probability)
     {
       type = TileType.Grass;
     }
     else
       type = TileType.None;
 
-    height = 1;//Mathf.PerlinNoise((float)x,(float)y);
+    height = 0;//Mathf.PerlinNoise((float)x,(float)y);
   }
 
   public virtual void OnUnitEnter(){}

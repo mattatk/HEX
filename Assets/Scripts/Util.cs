@@ -27,6 +27,21 @@ public struct IntCoord
     x=a;
     y=b;
   }
+
+  public Vector2 ToVector2()
+  {
+    return new Vector2(x,y);
+  }
+
+  public static IntCoord Zero()
+  {
+    return new IntCoord(0,0);
+  }
+
+  public string Print()
+  {
+    return x+"'"+y;
+  }
 }
 
 [Serializable]

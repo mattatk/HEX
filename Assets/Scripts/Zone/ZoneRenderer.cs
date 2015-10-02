@@ -6,9 +6,9 @@ public class ZoneRenderer : MonoBehaviour
 {
   public GameObject boardPrefab;
 
-	public GameObject RenderZone(Zone zone)
+	public GameObject RenderZone(Zone zone, TileSet tileSet)
   {
-    Vector3 zonePlacement = new Vector3(-1*Hex.bisect*zone.width, 0, Hex.sideAndAHalf*zone.width/-2);
+    Vector3 zonePlacement = Vector3.zero;//new Vector3(-1*Hex.bisect*zone.width, 0, Hex.sideAndAHalf*zone.width/-2);
     GameObject output = (GameObject)Instantiate(boardPrefab, zonePlacement, Quaternion.identity);
 
     MeshFilter myFilter = output.GetComponent<MeshFilter>();
@@ -28,23 +28,31 @@ public class ZoneRenderer : MonoBehaviour
                 v5 = new Vector3(-Hex.bisect,0,-Hex.halfSide),
                 v6 = new Vector3(-Hex.bisect, 0, Hex.halfSide);
 
-    float texHeight = 1024;
-    float texWidth = 1282;
-    float root3 = Mathf.Sqrt(3);           
-    Vector2 uv0 = new Vector2(128/texWidth,128/texHeight),
-            uv1 = new Vector2(192/texWidth, 256/texHeight),
-            uv2 = new Vector2(256/texWidth, uv0.y/texHeight),
-            uv3 = new Vector2(uv1.x, 0),
-            uv4 = new Vector2(64/texWidth,0),
-            uv5 = new Vector2(0,uv0.y/texHeight),
-            uv6 = new Vector2(uv4.x,uv1.y);
+    float texHeight = tileSet.texture.height;
+    float texWidth = tileSet.texture.width;
+    float root3 = Mathf.Sqrt(3);
+    float uvTileWidth = tileSet.tileWidth/texWidth;
+    float uvTileHeight = tileSet.tileWidth/texHeight;
+    float side = uvTileWidth/2;
+    float radius = Mathf.Sqrt((3*side*side)/4);
+    float cacheA = Mathf.Sqrt(Mathf.Pow(side,2)-Mathf.Pow(side,2));
+
+    Vector2 uv0 = new Vector2(side,side),
+            uv1 = new Vector2(side, side+side),
+            uv2 = new Vector2(side+radius, side+side/2),
+            uv3 = new Vector2(side+radius, side/2),
+            uv4 = new Vector2(side, 0),
+            uv5 = new Vector2(side-radius, side/2),
+            uv6 = new Vector2(side-radius, side+side/2);
 
     int counter = 0;
     for (int x=0; x<zone.width; x++)
     {
       for (int y=0;y<zone.width; y++)
       {
-        if (zone.tiles[x,y].type == TileType.None)
+        TileType tileType = zone.tiles[x,y].type;
+
+        if (tileType == TileType.None)
           continue;
         /*
                 1 = 0,side
@@ -54,71 +62,78 @@ public class ZoneRenderer : MonoBehaviour
                 4= 0,-side
         */
 
+        IntCoord uvCoord = tileSet.GetUVForType(tileType);
+        //Debug.Log(uvCoord.ToVector2());
+        //Debug.Log(uvCoord.ToVector2() * uvTileWidth);
+        Vector2 uvOffset = new Vector2(uvCoord.x*uvTileWidth, uvCoord.y*uvTileHeight);
+        //Vector2 uvOffset = new Vector2(256/texWidth,256/texWidth);
+        //Vector2 uvOffset = Vector2.zero;
+
         float xOffset = x*Hex.doubleHeight;
         Vector3 tileHeight = Vector3.up*zone.tiles[x,y].height;
 
         if (y%2==1)
           xOffset += Hex.bisect;
 
-        origin = new Vector3(xOffset, GameManager.currentZone.tiles[x, y].height, y*Hex.sideAndAHalf);
+        origin = new Vector3(xOffset, 0, y*Hex.sideAndAHalf);
 
         // Add the first hexagon. Vertex 0
         vertices.Add(origin);
         normals.Add(Vector3.up);
-        uvs.Add(uv0);
+        uvs.Add(uv0+uvOffset);
     //1
         vertices.Add(origin+v1);
         normals.Add(Vector3.up);
-        uvs.Add(uv1);
+        uvs.Add(uv1+uvOffset);
     //2
         vertices.Add(origin+v2);
         normals.Add(Vector3.up);
-        uvs.Add(uv2);
+        uvs.Add(uv2+uvOffset);
     //3
         vertices.Add(origin+v3);
         normals.Add(Vector3.up);
-        uvs.Add(uv3);
+        uvs.Add(uv3+uvOffset);
     //4
         vertices.Add(origin+v4);
         normals.Add(Vector3.up);
-        uvs.Add(uv4);
+        uvs.Add(uv4+uvOffset);
     //5
         vertices.Add(origin+v5);
         normals.Add(Vector3.up);
-        uvs.Add(uv5);
+        uvs.Add(uv5+uvOffset);
     //6
         vertices.Add(origin+v6);
         normals.Add(Vector3.up);
-        uvs.Add(uv6);
+        uvs.Add(uv6+uvOffset);
     
     //Second hex for depth.  Vertex 7
     vertices.Add (origin + tileHeight);
     normals.Add (Vector3.up);
-    uvs.Add (uv0);
+    uvs.Add (uv0+uvOffset);
     //8
     vertices.Add (origin+v1+ tileHeight);
     normals.Add (Vector3.up);
-    uvs.Add (uv1);
+    uvs.Add (uv1+uvOffset);
     //9
     vertices.Add (origin+v2+ tileHeight);
     normals.Add (Vector3.up);
-    uvs.Add (uv2);
+    uvs.Add (uv2+uvOffset);
     //10
     vertices.Add (origin+v3+ tileHeight);
     normals.Add (Vector3.up);
-    uvs.Add (uv3);
+    uvs.Add (uv3+uvOffset);
     //11
     vertices.Add (origin+v4+ tileHeight);
     normals.Add (Vector3.up);
-    uvs.Add (uv4);
+    uvs.Add (uv4+uvOffset);
     //12
     vertices.Add (origin+v5+ tileHeight);
     normals.Add (Vector3.up);
-    uvs.Add (uv5);
+    uvs.Add (uv5+uvOffset);
     //13
     vertices.Add (origin+v6+ tileHeight);
     normals.Add (Vector3.up);
-    uvs.Add (uv6);
+    uvs.Add (uv6+uvOffset);
 
         /*
               .....

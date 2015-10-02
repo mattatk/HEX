@@ -53,14 +53,15 @@ public class GameManager : MonoBehaviour
     currentZone = new Zone(64);
     zoneManager.Initialize(currentZone);
 
+    // Round
+    roundManager.Initialize();
+
     // Scene
     zoneCameraControls.Initialize();
 
     // Interface
     //mainUI.Initialize(); TURN BACK ON LATER
   }
-
-    //roundManager.UpdateRound();  TURN BACK ON LATER
 
   void OnGUI()
   {
@@ -72,7 +73,7 @@ public class GameManager : MonoBehaviour
     switch (state)
     {
       case GameState.ZoneMap:
-        zoneManager.OnTapInput(tap);
+        roundManager.OnTapInput(tap);
       break;
     }
   }

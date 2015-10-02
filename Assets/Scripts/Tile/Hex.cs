@@ -23,13 +23,18 @@ public enum Direction
 
 public class Hex
 {
-  private static float radius, width, halfWidth, height, rowHeight;
+  private static float width, halfWidth, height, rowHeight;
 
   public const float edge = .25f;
   public static float root3, halfSide, bisect, doubleHeight, sideAndAHalf, gridHeight, gridWidth;
 
   public static void Initialize()
   {
+    height = 2 * edge;
+    rowHeight = 1.5f * edge;
+    halfWidth = (float)Mathf.Sqrt((edge * edge) - ((edge / 2) * (edge / 2)));
+    width = 2 * halfWidth;
+
     root3 = Mathf.Sqrt(3);
     halfSide = edge/2;
     bisect = root3 * edge / 2;
@@ -40,17 +45,19 @@ public class Hex
     gridWidth = bisect * 2;
   }
 
-  public Vector3 TileOrigin(Vector2 tileCoordinate)
+  public static Vector3 TileOrigin(IntCoord tileCoordinate)
   {
+    Debug.Log(GameManager.currentZone.tiles[tileCoordinate.x,tileCoordinate.y].height);
+
     return new Vector3(
               (tileCoordinate.x * width) + ((tileCoordinate.y % 2 == 1) ? halfWidth : 0),
-              tileCoordinate.y * rowHeight,
-              0f);
+              GameManager.currentZone.tiles[tileCoordinate.x,tileCoordinate.y].height,
+              tileCoordinate.y * rowHeight);
   }
 
-  public Vector3 TileCenter(Vector2 tileCoordinate)
+  public static Vector3 TileCenter(IntCoord tileCoordinate)
   {
-    return TileOrigin(tileCoordinate) + new Vector3(halfWidth, height/2, 0f);
+    return TileOrigin(tileCoordinate) + new Vector3(halfWidth, 0, height/2);
   }
 
   public static Direction RotateDirection(Direction direction, int amount)
