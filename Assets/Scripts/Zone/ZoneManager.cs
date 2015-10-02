@@ -16,15 +16,6 @@ public class ZoneManager : MonoBehaviour
 {
   // === Public ===
   public TileSet regularTileSet;
-
-  public int columns = 8, rows = 8;
-
-  public Count wallCount = new Count(5,9);
-
-  public GameObject[] floorTiles;
-  public GameObject[] floorBorderTiles;
-  public GameObject[] floorBottomTiles;
-  public GameObject[] floorBottomBorderTiles;
 	
   // === Private ===
   Transform boardHolder;
@@ -33,13 +24,6 @@ public class ZoneManager : MonoBehaviour
 
   // === Cache ===
   ZoneRenderer zoneRenderer;
-
-  // Deprecated
-  //List<GameObject> tiles;
-  //List<GameObject> botTiles;
-  //float stepHeight = .08f; //proper offset of bottom tiles
-  //float lastStep = 0.145f; //dy from top tile to first bot tile
-  //bool right = false;
 
   GameObject currentZoneObject;
   int layermask;

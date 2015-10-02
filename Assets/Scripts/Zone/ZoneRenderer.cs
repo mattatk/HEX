@@ -197,7 +197,7 @@ public class ZoneRenderer : MonoBehaviour
     triangles.Add (counter + 13);
 
 
-        //The 6 Parallelograms (12 triangles) which complete the hexagon
+    //The 6 Parallelograms (12 triangles) which complete the hexagon
 
     triangles.Add(counter + 1);
     triangles.Add(counter + 8);
