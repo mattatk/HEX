@@ -26,6 +26,17 @@ public class TileSet
     initialized = true;
   }
 
+  public IntCoord GetSideUVForType(TileType t)
+  {
+    if (!initialized)
+      Initialize();
+
+    if (_typeUVs[(int)t] == null)
+      return IntCoord.Zero();
+
+    return _typeUVs[(int)t].sideCoord;
+  }
+
   public IntCoord GetUVForType(TileType t)
   {
     if (!initialized)
@@ -41,6 +52,7 @@ public class TileSet
   public class TypeMap
   {
     public TileType type;
-    public IntCoord coord;
+    public IntCoord coord;        // Coordinate of tile in texture map
+    public IntCoord sideCoord;    // Coordinate of tile for side of hex
   }
 }

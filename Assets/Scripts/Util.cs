@@ -28,6 +28,12 @@ public struct IntCoord
     y=b;
   }
 
+  public IntCoord(Vector2 i)
+  {
+    x=(int)i.x;
+    y=(int)i.y;
+  }
+
   public Vector2 ToVector2()
   {
     return new Vector2(x,y);

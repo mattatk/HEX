@@ -7,6 +7,9 @@ public class Zone {
   public Tile[,] tiles;
   public List<Tile[,]> continents;
   public int width;
+  public float waterHeight;
+  public int landArea;
+  SimplexNoise simplex;
 
   ZoneRelationship[] neighbors;
 
@@ -15,11 +18,15 @@ public class Zone {
   public Zone(int w)
   {
     width = w;
+    waterHeight = .5f;
     tiles = new Tile[width, width];
+    simplex = new SimplexNoise(GameManager.gameSeed);
 
     int randX = Random.Range(-99999,99999);
     int randY = Random.Range(-99999,99999);
-
+    
+    float maxHeight = 10;   // Should be an int
+    float startingHeight = Random.Range(maxHeight*.1f,maxHeight*.5f);
 
     // 1st pass: random seed noise in Perlin
 
@@ -27,48 +34,119 @@ public class Zone {
     {
       for (int y=0; y<width; y++)
       {
-        //tiles[x,y] = new Tile(.4f);   // Bay area lol
-        float seedx = Random.Range(-100,100);
-        float seedy = Random.Range(-100,100);
-        //tiles[x,y] = new Tile(x/(float)width+seedx,y/(float)width+seedy,.5f);
-        tiles[x,y] = new Tile(x,y, .8f);
+        // Perlin noise tiles
+        tiles[x,y] = new Tile(x,y,width, .1f, .5f, startingHeight);
+
+        // All Grass same-height method
+        //tiles[x,y] = new Tile(startingHeight);
       }
     }
 
+    //RandomWaterHeight(.2f, .4f);
+
     // 2nd pass: Spread ground
     SpreadGround(4, TileType.Grass);
+
     //3rd: Refine ground
     RefineGround();
+
     //4th SetHeights
-    SetHeightsByPerlin(.2f, 10);
-    SetHeightsByPerlin(.6f, 3);
-    SetHeightsByPerlin(.3f, 6);
-    SetTypeByHeight();
+    AddPerlinHeight(maxHeight*2, 1);
+    AddPerlinHeight(maxHeight*.5f, 4);
+    AddPerlinHeight(maxHeight*.25f, 8);
+
+    SetTypeByHeight(maxHeight);
+
+    AnalyzeTiles();
   }
 
-  void SetTypeByHeight()
+  void RandomWaterHeight(float dryLandWeight)
   {
-    int rx = Random.Range(-100,100), ry = Random.Range(-100,100);
+    waterHeight = Random.Range(-dryLandWeight,4.3f);
+  }
+
+  void AnalyzeTiles()
+  {
+    landArea = 0;
 
     for (int x=0; x<width; x++)
     {
       for (int y=0; y<width; y++)
       {
-        float xs = (float)x/width*5, ys = (float)y/width*5;
-        float perlin = Mathf.PerlinNoise(xs+rx,ys+ry) * 10;
-        float height = tiles[x,y].height;
-        float sum = perlin/2+height*2;
-
-        if (sum > 7)
-          tiles[x,y].type = TileType.Desert;
-        else if (sum > 5)
-          tiles[x,y].type = TileType.Rock;
-        else if (sum > 4)
-          tiles[x,y].type = TileType.GrassSparse;
-        else if (sum > 2)
-          tiles[x,y].type = TileType.Grass;
-        else
+        if (tiles[x,y].height< waterHeight)
           tiles[x,y].type = TileType.Water;
+        else
+        {
+          switch (tiles[x,y].type)
+          {
+            case TileType.Water:
+
+            break;
+            default:
+              landArea++;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  void SetTypeByHeight(float maxHeight)
+  {
+    int rx = Random.Range(-100,100), ry = Random.Range(-100,100);
+    float perlinScale = 10;
+
+    for (int x=0; x<width; x++)
+    {
+      for (int y=0; y<width; y++)
+      {
+        if (tiles[x,y].type == TileType.None)
+          continue;
+
+        float xs = (float)x/width*5, ys = (float)y/width*5;
+        float perlin = Mathf.PerlinNoise((xs+rx)*perlinScale,(ys+ry)*perlinScale);
+        float height = tiles[x,y].height;
+        float sum = height;
+
+        if (sum < waterHeight)
+        {
+          if (sum < maxHeight*.1f)
+            tiles[x,y].type = TileType.DeepWater;
+          else
+            tiles[x,y].type = TileType.Water;
+        }
+        else if (sum > maxHeight*.8f)
+          tiles[x,y].type = TileType.Snow;
+        else if (sum > maxHeight * .6f)
+        {
+          if (sum > maxHeight*.75f)
+          {
+            if (perlin > .5f)
+              tiles[x,y].type = TileType.MossyRoad;
+            else
+              tiles[x,y].type = TileType.Road;
+          }
+          else
+            tiles[x,y].type = TileType.Stone;
+        }
+        else if (sum > maxHeight*.5f)
+        {
+          if (perlin < .2f)
+            tiles[x,y].type = TileType.Mud;
+          else
+            tiles[x,y].type = TileType.Grass;
+        }
+        else if (sum > maxHeight*.3f)
+          tiles[x,y].type = TileType.Dirt;
+        else if (sum > maxHeight*.2f)
+          tiles[x,y].type = TileType.Mud;
+        else if (sum > maxHeight*.15f)
+        {
+          if (perlin > .8f)
+            tiles[x,y].type = TileType.PinkSand;
+          else
+            tiles[x,y].type = TileType.Sand;
+        }
       }
     }
   }
@@ -77,17 +155,27 @@ public class Zone {
 
   }
 
-  void SetHeightsByPerlin(float scale, int lacunarity)
+  void AddPerlinHeight(float scale, int lacunarity)
   {
-    float seedx = Random.Range(-100,100);
-        float seedy = Random.Range(-100,100);
+    float seedx = Random.Range(-1.0f,1.0f);
+    float seedy = Random.Range(-1.0f,1.0f);
+    float wi = width;
 
-    for (int x=0; x<width; x++)
+    for (int x=0; x<wi; x++)
     {
-      for (int y=0; y<width; y++)
+      for (int y=0; y<wi; y++)
       {
-        float height = (int)(Mathf.PerlinNoise((float)x/width+seedx,(float)y/width+seedy) * lacunarity) * scale;
-        tiles[x,y].height += height;
+        if (tiles[x,y].type == TileType.None)
+          continue;
+
+        //float height = Mathf.PerlinNoise( (x/wi+seedx)*lacunarity, (y/wi+seedy)*lacunarity);
+        //height -= .5f;    // So that subtractions can happen
+
+        float fractal = simplex.coherentNoise(x, y,
+          2, 5, 2, 4);
+        //Debug.Log(fractal);
+
+        tiles[x,y].height += (int)(fractal * scale * 2) / 2.0f;
       }
     }
   }
@@ -245,7 +333,7 @@ public class Zone {
                 if (neighborCount > 0)
                 {
                     tiles[x, y].border = true;
-                    tiles[x, y].type = TileType.Border;
+                    tiles[x, y].type = TileType.Abyss;
                 }
             }
         }
