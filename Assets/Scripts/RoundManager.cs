@@ -6,10 +6,12 @@ public class RoundManager : MonoBehaviour
   public Unit unitToSpawn;
 
   ActorSpawner actorSpawner;
+  LayerMask layermask;
 
   public void Initialize()
   {
     actorSpawner = GetComponent<ActorSpawner>();
+    layermask = 1<<8;
 
     SpawnUnits();
   }
@@ -24,20 +26,29 @@ public class RoundManager : MonoBehaviour
     
   }
 
+  void MoveUnit()
+  {
+
+  }
+
   public void OnTapInput(Vector2 tap)
   {
-    /*
     RaycastHit hit;
 
     if (Physics.Raycast(GameManager.cam.ScreenPointToRay(tap), out hit, 500, layermask))
     {
-      Vector2 hexCoordSelected = Hex.TileAt(hit.point);
+      IntCoord hexCoordSelected = new IntCoord(Hex.TileAt(hit.point));
 
-      if (hexCoordSelected[0] == -1)
+      if (hexCoordSelected.x == -1)
         return;
 
-      Debug.Log(hexCoordSelected.x+","+hexCoordSelected.y);
+      actorSpawner.SpawnUnit(unitToSpawn, hexCoordSelected);
+
+      Debug.Log("Ray at "+hexCoordSelected.x+","+hexCoordSelected.y);
     }
-    */
+    else
+    {
+      Debug.Log("No ray hit on Tap");
+    }
   }
 }

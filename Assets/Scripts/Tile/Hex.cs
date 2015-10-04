@@ -47,8 +47,6 @@ public class Hex
 
   public static Vector3 TileOrigin(IntCoord tileCoordinate)
   {
-    Debug.Log(GameManager.currentZone.tiles[tileCoordinate.x,tileCoordinate.y].height);
-
     return new Vector3(
               (tileCoordinate.x * width) + ((tileCoordinate.y % 2 == 1) ? halfWidth : 0),
               GameManager.currentZone.tiles[tileCoordinate.x,tileCoordinate.y].height,

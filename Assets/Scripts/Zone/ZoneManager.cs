@@ -23,28 +23,10 @@ public class ZoneManager : MonoBehaviour
   List<Vector2> topTilePositions;
 
   // === Cache ===
-  ZoneRenderer zoneRenderer;
-
-  GameObject currentZoneObject;
-  int layermask;
-
-  void Update()
-  {
-    if (Input.GetKeyUp(KeyCode.Space))
-    {
-      Destroy (currentZoneObject);
-      //GameManager.currentZone.SimulateLife();
-      GameManager.currentZone = new Zone (64);
-      currentZoneObject = zoneRenderer.RenderZone(GameManager.currentZone, regularTileSet);
-    }
-  }
+  LayerMask layermask;
 
   public void Initialize (Zone z)
   {
-    zoneRenderer = GetComponent<ZoneRenderer>();
-
-    currentZoneObject = zoneRenderer.RenderZone(z, regularTileSet);
-
     layermask = 1<<8;   // Layer 8 is set up as "Chunk" in the Tags & Layers manager
   }
 

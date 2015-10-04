@@ -1,8 +1,15 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using Random = UnityEngine.Random;
 
-public enum TileType {None, Grass, GrassSparse, Rock, Hill, Desert, Water, Border};
+public enum TileType {
+  None,
+  Sand, PinkSand, Mud, Dirt, Grass,
+  Stone, SmoothStone, Road, MossyRoad,
+  Snow, Water, DeepWater,
+  Abyss
+};
 
 [Serializable]
 public class Tile
@@ -16,28 +23,30 @@ public class Tile
 
   public Tile(){}
 
-  public Tile(float probability)    // AKA "bay area"
+  public Tile(float startingHeight)
   {
-    if (UnityEngine.Random.Range(0, 1.0f) < probability)
-    {
-      type = TileType.Grass;
-    }
-    else
-      type = TileType.None;
-
-    height = 0;
+    height = startingHeight;
   }
   
-  public Tile(float x, float y, float probability)
+  public Tile(float x, float y, int width, float lacunarity, float probability, float height_in = -1)
   {
-    if (Mathf.PerlinNoise((float)x,(float)y) < probability)
+    float rndX = Random.Range(-100,100.0f),
+          rndY = Random.Range(-100,100.0f);
+    float chance = Mathf.PerlinNoise((x+rndX)*lacunarity,(y+rndY)*lacunarity);
+
+    if (chance < probability)
     {
       type = TileType.Grass;
     }
     else
+    {
       type = TileType.None;
+    }
 
-    height = 0;//Mathf.PerlinNoise((float)x,(float)y);
+    if (height_in == -1)
+      height = 0;
+    else
+      height = height_in;
   }
 
   public virtual void OnUnitEnter(){}
