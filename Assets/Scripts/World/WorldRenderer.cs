@@ -209,7 +209,7 @@ public class WorldRenderer : MonoBehaviour
 
     foreach (Triangle tri in allTriangles)
     {
-      Debug.Log(tri.v3);
+      //Bisect
       Vector3 v1 = (tri.v1 - tri.v3)*(1/2);
       Vector3 v2 = (tri.v2 - tri.v1)*(1/2);
       Vector3 v3 = (tri.v3 - tri.v2)*(1/2);

@@ -15,7 +15,7 @@ public enum GameState {None, MainMenu, GalaxyMap, WorldMap, ZoneMap};
 public class GameManager : MonoBehaviour
 {
   // === Public Cache ===
-  public GameState beginningState = GameState.ZoneMap; //Making worlds right now, not zones. Change back to make zones.  We need to change how this works obviously. Perhaps choose in inspector?
+  public GameState beginningState = GameState.ZoneMap;
   public static string gameSeed = "sixtynine";
 
   // === Public Static Cache ===
@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
     roundManager =        GetComponent<RoundManager>();
 
     // water = (GameObject)Instantiate(water,new Vector3(0,(float)Random.Range(4,5),0),Quaternion.identity);
+    //currentZone = new Zone(24);
     Hex.Initialize();
 
     // Ideally, the only place state is manually set.
