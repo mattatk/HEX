@@ -97,7 +97,7 @@ public class GameManager : MonoBehaviour
 
     while (buildingZone)
     {
-      currentZone = new Zone(20);
+      currentZone = new Zone(128);
 
       if (currentZone.landArea > minimumSize)
       {

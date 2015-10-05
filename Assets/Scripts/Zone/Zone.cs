@@ -168,14 +168,30 @@ public class Zone {
         if (tiles[x,y].type == TileType.None)
           continue;
 
-        //float height = Mathf.PerlinNoise( (x/wi+seedx)*lacunarity, (y/wi+seedy)*lacunarity);
-        //height -= .5f;    // So that subtractions can happen
+        float height = Mathf.PerlinNoise( (x/wi+seedx)*lacunarity, (y/wi+seedy)*lacunarity);
+        height -= .5f;    // So that subtractions can happen
+
+        tiles[x,y].height += (int)(height * scale * 2) / 2.0f;
+      }
+    }
+  }
+
+  void AddSimplexHeight(float scale, int lacunarity)
+  {
+    float seedx = Random.Range(-1.0f,1.0f);
+    float seedy = Random.Range(-1.0f,1.0f);
+    float wi = width;
+
+    for (int x=0; x<wi; x++)
+    {
+      for (int y=0; y<wi; y++)
+      {
+        if (tiles[x,y].type == TileType.None)
+          continue;
 
         float fractal = simplex.coherentNoise(x, y,
           2, 5, 2, 4);
         //Debug.Log(fractal);
-
-        tiles[x,y].height += (int)(fractal * scale * 2) / 2.0f;
       }
     }
   }
