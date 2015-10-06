@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
     roundManager =        GetComponent<RoundManager>();
 
     // water = (GameObject)Instantiate(water,new Vector3(0,(float)Random.Range(4,5),0),Quaternion.identity);
-    //currentZone = new Zone(24);
+    currentZone = new Zone(128); //so Hex doesn't null ref currentZone
     Hex.Initialize();
 
     // Ideally, the only place state is manually set.
@@ -94,10 +94,10 @@ public class GameManager : MonoBehaviour
     int safety = 100;
     bool buildingZone = true;
     int minimumSize = 1750;
-
+    Triangle tri = new Triangle(new Vector3(0, 0, 0), new Vector3(18, 0, 24), new Vector3(0, 0, 36));
     while (buildingZone)
     {
-      currentZone = new Zone(128);
+      currentZone = new Zone(tri);
 
       if (currentZone.landArea > minimumSize)
       {

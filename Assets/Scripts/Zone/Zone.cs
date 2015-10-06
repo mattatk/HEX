@@ -7,13 +7,72 @@ public class Zone {
   public Tile[,] tiles;
   public List<Tile[,]> continents;
   public int width;
+  public Triangle triangle;
+  public float root3 = Mathf.Sqrt(3);
   public float waterHeight;
   public int landArea;
+  public static float sideLength;
   SimplexNoise simplex;
 
   ZoneRelationship[] neighbors;
 
   public Zone(){}
+
+  public Zone(Triangle tri)  //equilateral triangle zone
+  {
+    /*
+    triangle = tri;
+    Vector3 p = tri.v1 - tri.v3;
+    sideLength = p.magnitude;
+    width = (int)sideLength;
+    */
+    width = 128;
+    waterHeight = .5f;
+    tiles = new Tile[width, width];
+    simplex = new SimplexNoise(GameManager.gameSeed);
+    
+    
+
+    int randX = Random.Range(-99999, 99999);
+    int randY = Random.Range(-99999, 99999);
+
+    float maxHeight = 10;   // Should be an int
+    float startingHeight = Random.Range(maxHeight * .1f, maxHeight * .5f);
+
+    // 1st pass: random seed noise in Perlin
+
+    for (int x = 0; x < width; x++)
+    {
+      for (int y = 0; y < width; y++)
+      {
+        // Perlin noise tiles
+        tiles[x, y] = new Tile(x, y, width, .1f, .5f, startingHeight);
+
+        // All Grass same-height method
+        //tiles[x,y] = new Tile(startingHeight);
+      }
+    }
+
+    //RandomWaterHeight(.2f, .4f);
+
+    // 2nd pass: Spread ground
+    SpreadGround(4, TileType.Grass);
+
+    //3rd: Refine ground
+    RefineGround();
+
+    
+    //4th SetHeights
+    AddPerlinHeight(maxHeight * 2, 1);
+    AddPerlinHeight(maxHeight * .5f, 4);
+    AddPerlinHeight(maxHeight * .25f, 8);
+
+    SetTypeByHeight(maxHeight);
+
+    AnalyzeTiles();
+
+    CutIntoEquilateralTriangle();
+  }
 
   public Zone(int w)
   {
@@ -90,7 +149,25 @@ public class Zone {
       }
     }
   }
-
+  void CutIntoEquilateralTriangle()
+  {
+    for (int x = 0; x < width; x++)
+    {
+      for (int y = 0; y < width; y++)
+      {
+        if ((y > (root3*x) && x <= width/2) || (y > -root3 * x + root3 * width && x > width / 2))
+        {
+          tiles[x, y].type = TileType.None;
+        }
+        /*
+        if(y > (root3 / 2) * width)
+        {
+          tiles[x, y].type = TileType.None;
+        }
+        */
+      }
+    }
+  }
   void SetTypeByHeight(float maxHeight)
   {
     int rx = Random.Range(-100,100), ry = Random.Range(-100,100);
