@@ -6,7 +6,7 @@ public class RoundManager : MonoBehaviour
   public Unit unitToSpawn;
 
   ActorSpawner actorSpawner;
-  LayerMask layermask;
+  LayerMask  layermask;
 
   public void Initialize()
   {
