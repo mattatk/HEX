@@ -24,14 +24,19 @@ public class WorldRenderer : MonoBehaviour
 
     Vector2 uvOffset = Vector3.zero;
 
-    //LabelCenters(icosahedron);
-    
     PolySphere sphere = new PolySphere(scale, subdivisions);
-    
+
+    LabelCenters(sphere.finalTris);
+
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
     List<Vector3> normals = new List<Vector3>();
     List<Vector2> uvs = new List<Vector2>();
+
+    foreach (Triangle tri in sphere.finalTris)
+    {
+
+    }
 
     // Generate polygons, create neighbors
     foreach (Triangle tri in sphere.finalTris)
@@ -72,20 +77,19 @@ public class WorldRenderer : MonoBehaviour
     myFilter.sharedMesh = m;
 
     return output;
-    }
+  }
 
   void LabelCenters(List<Triangle> tris)
   {
     int count = 0;
     foreach (Triangle t in tris)
     {
-      GameObject textObj = (GameObject)Instantiate(textMeshPrefab, t.center, Quaternion.LookRotation(-t.center));
+      GameObject textObj = (GameObject)Instantiate(textMeshPrefab, t.center * 1.01f, Quaternion.LookRotation(-t.center));
       textObj.GetComponent<TextMesh>().text = count.ToString();
 
       count++;
     }
-  }
 
-  
+  }
 }
 

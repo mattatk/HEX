@@ -7,7 +7,8 @@ public class Triangle
   public Vector3 v1, v2, v3;
   public Vector3 center;
   public Triangle nx, ny, nz;
-  public Triangle newnx, newny, newnz;
+  //public Triangle newnx, newny, newnz;
+  
 
   public Triangle(Vector3 x, Vector3 y, Vector3 z)
   {
@@ -30,13 +31,25 @@ public class Triangle
     ny = nb;
     nz = nc;
   }
+  /*
   public void NeighborsToAssign(Triangle na,Triangle nb,Triangle nc)
   {
     newnx = na;
     newny = nb;
     newnz = nc;
   }
-} 
+  */
+  public Triforce OriginalToTriforce(List<Triforce> tfs)
+  {
+    Triforce triforce = new Triforce();
+    foreach (Triforce tf in tfs)
+    {
+      if (tf.original == this)
+      { triforce = tf; }
+    }
+    return triforce;
+  }
+ } 
 
 public class PolySphere
 {
@@ -58,6 +71,7 @@ public class PolySphere
   {
     List<Triangle> currentTris;
     List<Triangle> nextTris = new List<Triangle>(icosahedronTris);
+    List<Triforce> triforces;
     subdividedTris = new List<List<Triangle>>();
 
     // Subdivide icosahedron
@@ -65,7 +79,8 @@ public class PolySphere
     {
       currentTris = new List<Triangle>(nextTris);
       nextTris = new List<Triangle>();
-
+      triforces = new List<Triforce>();
+      
       foreach (Triangle tri in currentTris)
       {
         //Bisect
@@ -83,28 +98,35 @@ public class PolySphere
         //Add the four new triangles
         Triangle mid = new Triangle(v1, v2, v3, center);
         nextTris.Add(mid);   // Center of triforce
+
+        center = (tri.v1 + v1 + v3) / 3;
         Triangle n1 = new Triangle(tri.v1, v1, v3, center);
         nextTris.Add(n1);
+
+        center = (v1 + tri.v2 + v2) / 3;
         Triangle n2 = new Triangle(v1, tri.v2, v2, center);
         nextTris.Add(n2);
+
+        center = (v3 + v2 + tri.v3) / 3;
         Triangle n3 =new Triangle(v3, v2, tri.v3, center);
         nextTris.Add(n3);
 
-        //Get new neighbors to middle triangle to assign later
-        mid.NeighborsToAssign(n1,n2,n3);
-
+        //These new triangles (along with the original, for reference later, make a triforce)
+        Triforce tf = new Triforce(tri, mid, n1, n2, n3);
+        triforces.Add(tf);
+      }
+      foreach (Triforce tf in triforces)
+      {
+        tf.AssignNeighbors(tf.original.nx.OriginalToTriforce(triforces), tf.original.ny.OriginalToTriforce(triforces), tf.original.nz.OriginalToTriforce(triforces));
       }
       //Once it's subdivided and new neighbors are ready to be assigned to mid tiles, 
       //Set new neighbors for remaining tiles based on old neighbors
-      foreach(Triangle tri in currentTris)
+      foreach(Triforce tf in triforces)
       {
-        //Null reference :( Gotta go
-        tri.newnx.AssignNeighbors(tri,tri.nx.newnz,tri.nz.newnx);
-        tri.newny.AssignNeighbors(tri,tri.nx.newny, tri.ny.newnx);
-        tri.newnz.AssignNeighbors(tri, tri.ny.newnz, tri.nz.newny);
-        //Now we're done with our neighborstoassign, so assign them
-        //There may be a problem here.
-        tri.AssignNeighbors(tri.newnx, tri.newny, tri.newnz);
+        tf.top.AssignNeighbors(tf.mid, tf.ny.left,tf.nz.right);
+        tf.right.AssignNeighbors(tf.mid, tf.nz.top, tf.nx.left);
+        tf.left.AssignNeighbors(tf.mid, tf.nx.right, tf.ny.top);
+        tf.mid.AssignNeighbors(tf.top, tf.right, tf.left);
       }
       subdividedTris.Add(nextTris);
     }
@@ -318,5 +340,26 @@ public class PolySphere
     output[19].AssignNeighbors(output[18],output[5],output[10]);
 
     return output;
+  }
+}
+
+public class Triforce
+{
+  public Triangle original, mid, top, right, left;
+  public Triforce nx, ny, nz;
+  public Triforce() { }
+  public Triforce(Triangle org, Triangle center, Triangle tri1, Triangle tri2, Triangle tri3)
+  {
+    original = org;
+    mid = center;
+    top = tri1;
+    right = tri2;
+    left = tri3;
+  }
+  public void AssignNeighbors(Triforce tf1, Triforce tf2, Triforce tf3)
+  {
+    nx = tf1;
+    ny = tf2;
+    nz = tf3;
   }
 }
