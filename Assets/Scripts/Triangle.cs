@@ -7,6 +7,7 @@ public class Triangle
   public Vector3 v1, v2, v3;
   public Vector3 center;
   public Triangle nx, ny, nz;
+  public Triangle newnx, newny, newnz;
 
   public Triangle(Vector3 x, Vector3 y, Vector3 z)
   {
@@ -28,6 +29,12 @@ public class Triangle
     nx = na;
     ny = nb;
     nz = nc;
+  }
+  public void NeighborsToAssign(Triangle na,Triangle nb,Triangle nc)
+  {
+    newnx = na;
+    newny = nb;
+    newnz = nc;
   }
 } 
 
@@ -74,14 +81,35 @@ public class PolySphere
         Vector3 center = (v1+v2+v3)/3;
 
         //Add the four new triangles
-        nextTris.Add(new Triangle(v1, v2, v3,     center));   // Center of triforce
-        nextTris.Add(new Triangle(tri.v1, v1, v3, center));
-        nextTris.Add(new Triangle(v1, tri.v2, v2, center));
-        nextTris.Add(new Triangle(v3, v2, tri.v3, center));
-      }
+        Triangle mid = new Triangle(v1, v2, v3, center);
+        nextTris.Add(mid);   // Center of triforce
+        Triangle n1 = new Triangle(tri.v1, v1, v3, center);
+        nextTris.Add(n1);
+        Triangle n2 = new Triangle(v1, tri.v2, v2, center);
+        nextTris.Add(n2);
+        Triangle n3 =new Triangle(v3, v2, tri.v3, center);
+        nextTris.Add(n3);
 
+        //Get new neighbors to middle triangle to assign later
+        mid.NeighborsToAssign(n1,n2,n3);
+
+      }
+      //Once it's subdivided and new neighbors are ready to be assigned to mid tiles, 
+      //Set new neighbors for remaining tiles based on old neighbors
+      foreach(Triangle tri in currentTris)
+      {
+        //Null reference :( Gotta go
+        tri.newnx.AssignNeighbors(tri,tri.nx.newnz,tri.nz.newnx);
+        tri.newny.AssignNeighbors(tri,tri.nx.newny, tri.ny.newnx);
+        tri.newnz.AssignNeighbors(tri, tri.ny.newnz, tri.nz.newny);
+        //Now we're done with our neighborstoassign, so assign them
+        //There may be a problem here.
+        tri.AssignNeighbors(tri.newnx, tri.newny, tri.newnz);
+      }
       subdividedTris.Add(nextTris);
     }
+
+    
     
     finalTris = nextTris;
   }
