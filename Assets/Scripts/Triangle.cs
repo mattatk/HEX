@@ -15,6 +15,7 @@ public class Triangle
     v1 = x;
     v2 = y;
     v3 = z;
+    center = (v1 + v2 + v3) / 3;
   }
 
   public Triangle(Vector3 x, Vector3 y, Vector3 z, Vector3 c)
@@ -64,7 +65,9 @@ public class PolySphere
     scale = s;
     subdivisions = d;
     icosahedronTris = Icosahedron(scale);
-    Subdivide(d);
+    //Subdivide(d);
+    SubdivideAndDuals(d);
+
   }
 
   void Subdivide(int divisions)
@@ -128,12 +131,107 @@ public class PolySphere
         tf.left.AssignNeighbors(tf.mid, tf.nx.right, tf.ny.top);
         tf.mid.AssignNeighbors(tf.top, tf.right, tf.left);
       }
+      
       subdividedTris.Add(nextTris);
     }
-
-    
-    
     finalTris = nextTris;
+  }
+  void SubdivideAndDuals(int divisions)
+  {
+    List<Triangle> currentTris;
+    List<Triangle> nextTris = new List<Triangle>(icosahedronTris);
+    List<Triforce> triforces;
+    List<List<Triangle>> dualTris = new List<List<Triangle>>();
+
+    // Subdivide icosahedron
+    for (int i = 0; i < divisions; i++)
+    {
+      currentTris = new List<Triangle>(nextTris);
+      nextTris = new List<Triangle>();
+      triforces = new List<Triforce>();
+
+      foreach (Triangle tri in currentTris)
+      {
+        //Bisect
+        Vector3 v1 = Vector3.Lerp(tri.v1, tri.v2, .5f) * .5f;
+        Vector3 v2 = Vector3.Lerp(tri.v2, tri.v3, .5f) * .5f;
+        Vector3 v3 = Vector3.Lerp(tri.v3, tri.v1, .5f) * .5f;
+
+        //Project onto sphere
+        v1 *= (float)(1.902113 / v1.magnitude) * scale; //golden rectangle sphere radius 1.902113
+        v2 *= (float)(1.902113 / v2.magnitude) * scale;
+        v3 *= (float)(1.902113 / v3.magnitude) * scale;
+
+        Vector3 center = (v1 + v2 + v3) / 3;
+
+        //Add the four new triangles
+        Triangle mid = new Triangle(v1, v2, v3, center);
+        nextTris.Add(mid);   // Center of triforce
+
+        center = (tri.v1 + v1 + v3) / 3;
+        Triangle n1 = new Triangle(tri.v1, v1, v3, center);
+        nextTris.Add(n1);
+
+        center = (v1 + tri.v2 + v2) / 3;
+        Triangle n2 = new Triangle(v1, tri.v2, v2, center);
+        nextTris.Add(n2);
+
+        center = (v3 + v2 + tri.v3) / 3;
+        Triangle n3 = new Triangle(v3, v2, tri.v3, center);
+        nextTris.Add(n3);
+
+        //These new triangles (along with the original, for reference later, make a triforce)
+        Triforce tf = new Triforce(tri, mid, n1, n2, n3);
+        triforces.Add(tf);
+      }
+      foreach (Triforce tf in triforces)
+      {
+        tf.AssignNeighbors(tf.original.nx.OriginalToTriforce(triforces), tf.original.ny.OriginalToTriforce(triforces), tf.original.nz.OriginalToTriforce(triforces));
+      }
+      //Once it's subdivided and new neighbors are ready to be assigned to mid tiles, 
+      //Set new neighbors for remaining tiles based on old neighbors
+      foreach (Triforce tf in triforces)
+      {
+        tf.top.AssignNeighbors(tf.mid, tf.ny.left, tf.nz.right);
+        tf.right.AssignNeighbors(tf.mid, tf.nz.top, tf.nx.left);
+        tf.left.AssignNeighbors(tf.mid, tf.nx.right, tf.ny.top);
+        tf.mid.AssignNeighbors(tf.top, tf.right, tf.left);
+      }
+      nextTris = Duals(triforces);
+      dualTris.Add(nextTris);
+    }
+    finalTris = nextTris;
+  }
+  List<Triangle> Duals(List<Triforce> triforces)
+  {
+    List<Triangle> dualTris = new List<Triangle>();
+    List<Hexagon> hexes = new List<Hexagon>();
+    foreach (Triforce tf in triforces)
+    {
+      //So, here we're going to make triangles that then render to become the duals.  
+      //Each hexagon in the dual polyhedron has 6 triangles that need to be rendered.
+      //The thing about duals is that for every polygon there also exists a dual of that polygon,
+      //  so we don't actually have to move any vertices around, just render the correct faces.
+      //The Hexagon class will take 6 vertices and Hexagon.ToRender will give you the 6 triangles on its face.
+      //Hexagon vertices have to be in the right order, with "ne" corresponding to the top vertex when looking vertex down at the hexagon.
+
+      //For every triforce, make the hexagons.
+      //Just trying to get this first one to work then seeing which others I have to add.
+      //For every triforce, there are a possible 6 hexagons or 5 hexagons and a pentagon to make.  The inner three should be more than enough, with overlapping.
+
+      hexes.Add(new Hexagon(tf.nz.right.center, tf.nz.mid.center, tf.nz.top.center, tf.right.center, tf.mid.center, tf.top.center));
+      //hexes.Add()
+      //hexes.Add()
+    }
+    //Get the triangles out of the hexes and return them
+    foreach (Hexagon hex in hexes)
+    {
+      foreach (Triangle tri in (hex.ToRender()))
+      {
+        dualTris.Add(tri);
+      }
+    }
+    return dualTris;
   }
 
   List<Triangle> Icosahedron(int scale)
@@ -361,5 +459,31 @@ public class Triforce
     nx = tf1;
     ny = tf2;
     nz = tf3;
+  }
+}
+
+public class Hexagon
+{
+  Vector3 center, ne, e, se, sw, w, nw;
+  public Hexagon(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6)
+  {
+    ne = v1;
+    e = v2;
+    se = v3;
+    sw = v4;
+    w = v5;
+    nw = v6;
+    center = (ne + e + se + sw + w + nw) / 6;
+  }
+  public List<Triangle> ToRender()
+  {
+    List<Triangle> hexTris = new List<Triangle>();
+    hexTris.Add(new Triangle(center, ne, e));
+    hexTris.Add(new Triangle(center, e, se));
+    hexTris.Add(new Triangle(center, se, sw));
+    hexTris.Add(new Triangle(center, sw, w));
+    hexTris.Add(new Triangle(center, w, nw));
+    hexTris.Add(new Triangle(center, nw, ne));
+    return hexTris;
   }
 }
