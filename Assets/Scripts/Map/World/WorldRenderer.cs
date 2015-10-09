@@ -26,7 +26,8 @@ public class WorldRenderer : MonoBehaviour
 
     PolySphere sphere = new PolySphere(scale, subdivisions);
 
-    LabelCenters(sphere.finalTris);
+    //LabelCenters(sphere.finalTris);
+    LabelNeighbors(sphere);
 
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
@@ -77,6 +78,13 @@ public class WorldRenderer : MonoBehaviour
     myFilter.sharedMesh = m;
 
     return output;
+  }
+
+  void LabelNeighbors(PolySphere sphere)
+  {
+    Dictionary<Triangle, bool> neighborsLabeled = new Dictionary<Triangle, bool>();
+
+    
   }
 
   void LabelCenters(List<Triangle> tris)
