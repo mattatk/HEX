@@ -4,42 +4,54 @@ using System.Collections.Generic;
 
 public class Triangle
 {
-  public Vector3 v1, v2, v3;
-  public Vector3 center;
-  public Triangle nx, ny, nz;
+  public Vector3 v1, v2, v3, center;
+  public int subdivisionLevel;
+  public Triangle top, right, left;
+  public Triangle instance, parent, childMid, childTop, childLeft, childRight;
+  public TriforcePosition triforcePosition;
+
   //public Triangle newnx, newny, newnz;
   
-
-  public Triangle(Vector3 x, Vector3 y, Vector3 z)
+  // Called for subdivisions
+  public Triangle(Vector3 x, Vector3 y, Vector3 z, Triangle p, TriforcePosition tp, int sl)
   {
     v1 = x;
     v2 = y;
     v3 = z;
     center = (v1 + v2 + v3) / 3;
+    instance = this;
+    parent = p;
+    triforcePosition = tp;
+    subdivisionLevel = sl;
   }
 
+  // Called for initial polygon
   public Triangle(Vector3 x, Vector3 y, Vector3 z, Vector3 c)
   {
     v1 = x;
     v2 = y;
     v3 = z;
     center = c;
+    instance = this;
+    parent = null;
   }
 
-  public void AssignNeighbors(Triangle na, Triangle nb, Triangle nc)
+  public void AssignNeighbors(Triangle nt, Triangle nr, Triangle nl)
   {
-    nx = na;
-    ny = nb;
-    nz = nc;
+    top = nt;
+    right = nr;
+    left = nl;
   }
+  
+  public void AssignChildren (Triangle cm, Triangle ct, Triangle cl, Triangle cr)
+  {
+    childMid = cm;
+    childTop = ct;
+    childLeft = cl;
+    childRight = cr;
+  }
+
   /*
-  public void NeighborsToAssign(Triangle na,Triangle nb,Triangle nc)
-  {
-    newnx = na;
-    newny = nb;
-    newnz = nc;
-  }
-  */
   public Triforce OriginalToTriforce(List<Triforce> tfs)
   {
     Triforce triforce = new Triforce();
@@ -50,10 +62,12 @@ public class Triangle
     }
     return triforce;
   }
+  */
  } 
 
 
-
+public enum TriforcePosition{None, Mid, Top, Right, Left};
+/*
 public class Triforce
 {
   public Triangle original, mid, top, right, left;
@@ -100,3 +114,4 @@ public class Hexagon
     return hexTris;
   }
 }
+*/

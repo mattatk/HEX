@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class WorldRenderer : MonoBehaviour
 {
   public int subdivisions = 1;
-  public GameObject worldPrefab, centerMarkerPrefab, textMeshPrefab;
+  public GameObject worldPrefab, textMeshPrefab;
   Zone currentZone;
   public GameObject RenderWorld(World world, TileSet tileSet)
   {
@@ -26,18 +26,13 @@ public class WorldRenderer : MonoBehaviour
 
     PolySphere sphere = new PolySphere(scale, subdivisions);
 
-    //LabelCenters(sphere.finalTris);
+    LabelCenters(sphere.finalTris);
     LabelNeighbors(sphere);
 
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
     List<Vector3> normals = new List<Vector3>();
     List<Vector2> uvs = new List<Vector2>();
-
-    foreach (Triangle tri in sphere.finalTris)
-    {
-
-    }
 
     // Generate polygons, create neighbors
     foreach (Triangle tri in sphere.finalTris)
@@ -82,9 +77,67 @@ public class WorldRenderer : MonoBehaviour
 
   void LabelNeighbors(PolySphere sphere)
   {
+    /*
     Dictionary<Triangle, bool> neighborsLabeled = new Dictionary<Triangle, bool>();
 
-    
+    foreach (Triangle tri in sphere.finalTris)
+    {
+      if (neighborsLabeled.ContainsKey(tri) )
+        continue;
+
+      neighborsLabeled.Add(tri.instance, true);
+
+      // Do the three immediate neighbors
+      if (!neighborsLabeled.ContainsKey(tri.top))
+      {
+        //neighborsLabeled.Add(tri.top.instance, true);
+
+        Vector3 midPointNX = (tri.center+tri.top.center) / 2;
+        GameObject textObj = (GameObject)Instantiate(textMeshPrefab, midPointNX * 1.03f,
+                                Quaternion.LookRotation(-midPointNX, tri.center-tri.top.center));
+        textObj.GetComponent<TextMesh>().text = "|";
+      }
+
+      if (!neighborsLabeled.ContainsKey(tri.right))
+      {
+        //neighborsLabeled.Add(tri.right.instance, true);
+
+        Vector3 midPointNY = (tri.center+tri.right.center) / 2;
+        GameObject textObj = (GameObject)Instantiate(textMeshPrefab, midPointNY * 1.03f,
+                                Quaternion.LookRotation(-midPointNY, tri.center-tri.right.center));
+        textObj.GetComponent<TextMesh>().text = "|";
+      }
+
+      if (!neighborsLabeled.ContainsKey(tri.left))
+      {
+        //neighborsLabeled.Add(tri.left.instance, true);
+
+        Vector3 midPointNZ = (tri.center+tri.left.center) / 2;
+        GameObject textObj = (GameObject)Instantiate(textMeshPrefab, midPointNZ * 1.03f,
+                                Quaternion.LookRotation(-midPointNZ, tri.center-tri.left.center));
+        textObj.GetComponent<TextMesh>().text = "|";
+      }
+    }
+    */
+
+    foreach (Triangle tri in sphere.finalTris)
+    {
+      float scale = tri.subdivisionLevel>0?1.025f : 1.15f;
+
+      Vector3 midPointTop = (tri.center+tri.top.center) / 2,
+              midPointRight = (tri.center+tri.right.center) / 2,
+              midPointLeft = (tri.center+tri.left.center) / 2;
+
+      GameObject textObj = (GameObject)Instantiate(textMeshPrefab, midPointTop * scale,
+                              Quaternion.LookRotation(-midPointTop, tri.center-tri.top.center));
+      textObj.GetComponent<TextMesh>().text = "|";
+
+      Instantiate(textObj, midPointRight * scale,
+                  Quaternion.LookRotation(-midPointRight, tri.center-tri.right.center));
+      Instantiate(textObj, midPointLeft * scale,
+                  Quaternion.LookRotation(-midPointLeft, tri.center-tri.left.center));
+    }
+
   }
 
   void LabelCenters(List<Triangle> tris)
