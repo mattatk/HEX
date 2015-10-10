@@ -24,7 +24,7 @@ public class PolySphere
   {
     List<Triangle> currentTris;
     List<Triangle> nextTris = new List<Triangle>(icosahedronTris);
-    List<Triforce> triforces;
+    //List<Triforce> triforces;
     subdividedTris = new List<List<Triangle>>();
 
     // Subdivide icosahedron
@@ -32,7 +32,7 @@ public class PolySphere
     {
       currentTris = new List<Triangle>(nextTris);
       nextTris = new List<Triangle>();
-      triforces = new List<Triforce>();
+      //triforces = new List<Triforce>();
       
       foreach (Triangle tri in currentTris)
       {
@@ -46,24 +46,29 @@ public class PolySphere
         v2 *= (float)(1.902113 / v2.magnitude)*scale;
         v3 *= (float)(1.902113 / v3.magnitude)*scale;
 
-
         //Add the four new triangles
-        Triangle mid = new Triangle(v1, v2, v3);
+        Triangle mid = new Triangle(v1, v2, v3, tri, TriforcePosition.Mid, i+1);
+        Triangle top = new Triangle(tri.v1, v1, v3, tri, TriforcePosition.Top, i+1);
+        Triangle right = new Triangle(v1, tri.v2, v2, tri, TriforcePosition.Right, i+1);
+        Triangle left = new Triangle(v3, v2, tri.v3, tri, TriforcePosition.Left, i+1);
+
+        mid.AssignNeighbors(top,right,left);
+        top.AssignNeighbors(tri.top.left, mid, tri.top);
+        right.AssignNeighbors(tri.top.right, tri.right.top, mid);
+        left.AssignNeighbors(mid, tri.right.left, tri.left.right);
+
         nextTris.Add(mid);   // Center of triforce
+        nextTris.Add(top);
+        nextTris.Add(right);
+        nextTris.Add(left);
 
-        Triangle n1 = new Triangle(tri.v1, v1, v3);
-        nextTris.Add(n1);
-
-        Triangle n2 = new Triangle(v1, tri.v2, v2);
-        nextTris.Add(n2);
-
-        Triangle n3 =new Triangle(v3, v2, tri.v3);
-        nextTris.Add(n3);
+        tri.AssignChildren(mid, top, left, right);
 
         //These new triangles (along with the original, for reference later, make a triforce)
-        Triforce tf = new Triforce(tri, mid, n1, n2, n3);
-        triforces.Add(tf);
+        //Triforce tf = new Triforce(tri, mid, top, right, left);
+        //triforces.Add(tf);
       }
+      /*
       foreach (Triforce tf in triforces)
       {
         tf.AssignNeighbors(tf.original.nx.OriginalToTriforce(triforces), tf.original.ny.OriginalToTriforce(triforces), tf.original.nz.OriginalToTriforce(triforces));
@@ -77,16 +82,18 @@ public class PolySphere
         tf.left.AssignNeighbors(tf.mid, tf.nx.right, tf.ny.top);
         tf.mid.AssignNeighbors(tf.top, tf.right, tf.left);
       }
+      */
       
       subdividedTris.Add(nextTris);
     }
     finalTris = nextTris;
   }
+
   void SubdivideAndDuals(int divisions)
   {
     List<Triangle> currentTris;
     List<Triangle> nextTris = new List<Triangle>(icosahedronTris);
-    List<Triforce> triforces;
+    //List<Triforce> triforces;
     List<List<Triangle>> dualTris = new List<List<Triangle>>();
 
     // Subdivide icosahedron
@@ -94,7 +101,7 @@ public class PolySphere
     {
       currentTris = new List<Triangle>(nextTris);
       nextTris = new List<Triangle>();
-      triforces = new List<Triforce>();
+      //triforces = new List<Triforce>();
 
       foreach (Triangle tri in currentTris)
       {
@@ -127,9 +134,10 @@ public class PolySphere
         nextTris.Add(n3);
 
         //These new triangles (along with the original, for reference later, make a triforce)
-        Triforce tf = new Triforce(tri, mid, n1, n2, n3);
-        triforces.Add(tf);
+        //Triforce tf = new Triforce(tri, mid, n1, n2, n3);
+        //triforces.Add(tf);
       }
+      /*
       foreach (Triforce tf in triforces)
       {
         tf.AssignNeighbors(tf.original.nx.OriginalToTriforce(triforces), tf.original.ny.OriginalToTriforce(triforces), tf.original.nz.OriginalToTriforce(triforces));
@@ -144,10 +152,13 @@ public class PolySphere
         tf.mid.AssignNeighbors(tf.top, tf.right, tf.left);
       }
       nextTris = Duals(triforces);
+      */
       dualTris.Add(nextTris);
     }
     finalTris = nextTris;
   }
+
+  /*
   List<Triangle> Duals(List<Triforce> triforces)
   {
     List<Triangle> dualTris = new List<Triangle>();
@@ -179,6 +190,7 @@ public class PolySphere
     }
     return dualTris;
   }
+  */
 
   List<Triangle> Icosahedron(int scale)
   {

@@ -94,7 +94,9 @@ public class GameManager : MonoBehaviour
     int safety = 100;
     bool buildingZone = true;
     int minimumSize = 1750;
-    Triangle tri = new Triangle(new Vector3(0, 0, 0), new Vector3(18, 0, 24), new Vector3(0, 0, 36));
+
+    Triangle tri = new Triangle(new Vector3(0, 0, 0), new Vector3(18, 0, 24), new Vector3(0, 0, 36), Vector3.one);
+
     while (buildingZone)
     {
       currentZone = new Zone(tri);
