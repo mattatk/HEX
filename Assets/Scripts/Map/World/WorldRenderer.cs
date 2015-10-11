@@ -122,35 +122,30 @@ public class WorldRenderer : MonoBehaviour
 
     foreach (Triangle tri in sphere.finalTris)
     {
-      float scale = tri.subdivisionLevel>0?1.125f : 1.4f;
+      float scale = tri.subdivisionLevel>0?1.025f : 1.3f;
 
-      Vector3 midPointTop = (tri.center+tri.top.center) / 2,
-              midPointRight = (tri.center+tri.right.center) / 2,
-              midPointLeft = (tri.center+tri.left.center) / 2;
+      Vector3 midPointTop = (tri.center+tri.top.center) / 2;
+//              midPointRight = (tri.center+tri.right.center) / 2,
+ //             midPointLeft = (tri.center+tri.left.center) / 2;
 
       GameObject textObj = (GameObject)Instantiate(textMeshPrefab, midPointTop * scale,
                               Quaternion.LookRotation(-midPointTop, tri.center-tri.top.center));
       textObj.GetComponent<TextMesh>().text = "|";
 
-      Instantiate(textObj, midPointRight * scale,
-                  Quaternion.LookRotation(-midPointRight, tri.center-tri.right.center));
-      Instantiate(textObj, midPointLeft * scale,
-                  Quaternion.LookRotation(-midPointLeft, tri.center-tri.left.center));
+      //Instantiate(textObj, midPointRight * scale, Quaternion.LookRotation(-midPointRight, tri.center-tri.right.center));
+      //Instantiate(textObj, midPointLeft * scale, Quaternion.LookRotation(-midPointLeft, tri.center-tri.left.center));
     }
 
   }
 
   void LabelCenters(List<Triangle> tris)
   {
-    int count = 0;
     foreach (Triangle t in tris)
     {
       GameObject textObj = (GameObject)Instantiate(textMeshPrefab, t.center * 1.01f, Quaternion.LookRotation(-t.center));
-      textObj.GetComponent<TextMesh>().text = count.ToString();
-
-      count++;
+      textObj.name = "Face "+t.index;
+      textObj.GetComponent<TextMesh>().text = t.index.ToString();
     }
-
   }
 }
 

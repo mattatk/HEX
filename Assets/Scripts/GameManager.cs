@@ -41,7 +41,8 @@ public class GameManager : MonoBehaviour
     cam =                 Camera.main;
     zoneManager =         GetComponent<ZoneManager>();
     zoneRenderer =        GetComponent<ZoneRenderer>();
-    zoneCameraControls =  Camera.main.GetComponent<ZoneViewCamera>();
+    if (Camera.main)
+      zoneCameraControls =  Camera.main.GetComponent<ZoneViewCamera>();
     mainUI =              GetComponent<MainUI>();
     roundManager =        GetComponent<RoundManager>();
 

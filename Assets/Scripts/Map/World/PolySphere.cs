@@ -15,9 +15,8 @@ public class PolySphere
     scale = s;
     subdivisions = d;
     icosahedronTris = Icosahedron(scale);
-    //Subdivide(d);
-    SubdivideAndDuals(d);
-
+    Subdivide(d);
+    //SubdivideAndDuals(d);
   }
 
   void Subdivide(int divisions)
@@ -32,8 +31,9 @@ public class PolySphere
     {
       currentTris = new List<Triangle>(nextTris);
       nextTris = new List<Triangle>();
-      triforces = new List<Triforce>();
+      //triforces = new List<Triforce>();
       
+      // --- Create children ---
       foreach (Triangle tri in currentTris)
       {
         //Bisect
@@ -62,24 +62,36 @@ public class PolySphere
         //Triforce tf = new Triforce(tri, mid, top, right, left);
         //triforces.Add(tf);
       }
-      /*
-      foreach (Triforce tf in triforces)
-      {
-        tf.AssignNeighbors(tf.original.top.OriginalToTriforce(triforces), tf.original.right.OriginalToTriforce(triforces), tf.original.left.OriginalToTriforce(triforces));
-      }
-      */
 
+      // --- Assign neighbors ---
       foreach (Triangle tri in currentTris)
       {
         tri.childMid.AssignNeighbors(tri.childTop, tri.childRight, tri.childLeft);
-        tri.childTop.AssignNeighbors(tri.top.childLeft, tri.childMid, tri.left.childTop);
-        tri.childRight.AssignNeighbors(tri.top.childRight, tri.right.childTop, tri.childMid);
-        tri.childLeft.AssignNeighbors(tri.childMid, tri.right.childLeft, tri.left.childRight);
+
+        tri.childTop.AssignNeighbors(tri.top.childTop, null, tri.childMid);
+
+        tri.childRight.AssignNeighbors(tri.childMid, tri.childMid, null);
+
+        tri.childLeft.AssignNeighbors(tri.right.childRight, tri.childMid, tri.left.childLeft);
       }
-      //nextTris.Remove(nextTris[0].right.right);
+
+      // --- Number tris ---
+      int count = 0;
+      foreach (Triangle t in nextTris)
+      {
+        t.index = count;
+        count++;
+      }
+
+      // --- Add to subdivided output ---
       subdividedTris.Add(nextTris);
     }
+
     finalTris = nextTris;
+
+    //finalTris.RemoveAt(finalTris[0].parent.childTop.top.index);
+    //finalTris.RemoveAt(finalTris[0].parent.childRight.top.index);
+    //finalTris.RemoveAt(finalTris[0].parent.childLeft.top.index);
   }
 
   void SubdivideAndDuals(int divisions)
@@ -127,12 +139,14 @@ public class PolySphere
         //triforces.Add(tf);
       }
 
-      foreach (Triangle tri in currentTris)
+      foreach (Triangle tri in nextTris)
       {
+
         tri.childMid.AssignNeighbors(tri.childTop, tri.childRight, tri.childLeft);
         tri.childTop.AssignNeighbors(tri.top.childLeft, tri.childMid, tri.left.childTop);
         tri.childRight.AssignNeighbors(tri.top.childRight, tri.right.childTop, tri.childMid);
         tri.childLeft.AssignNeighbors(tri.childMid, tri.right.childLeft, tri.left.childRight);
+        
       }
 
       /*
@@ -228,150 +242,58 @@ public class PolySphere
 
     //(float)(1.902113 / v3.magnitude)*scale
 
-    // === Faces of the Icosahedron ===
-    // Triangle 1
-    float sumX = vertices[10].x+vertices[6].x+vertices[1].x,
-          sumY = vertices[10].y+vertices[6].y+vertices[1].y,
-          sumZ = vertices[10].z+vertices[6].z+vertices[1].z;
-    output.Add(new Triangle(vertices[1], vertices[6], vertices[10]));
-
-    // Triangle 2
-    sumX = vertices[1].x+vertices[10].x+vertices[4].x;
-    sumY = vertices[1].y+vertices[10].y+vertices[4].y;
-    sumZ = vertices[1].z+vertices[10].z+vertices[4].z;
-    output.Add(new Triangle(vertices[1], vertices[10], vertices[4]));
-   
-    // Triangle 3
-    sumX = vertices[1].x+vertices[4].x+vertices[9].x;
-    sumY = vertices[1].y+vertices[4].y+vertices[9].y;
-    sumZ = vertices[1].z+vertices[4].z+vertices[9].z;
-    output.Add(new Triangle(vertices[1], vertices[4], vertices[9]));
-   
-    // Triangle 4
-    sumX = vertices[1].x+vertices[9].x+vertices[5].x;
-    sumY = vertices[1].y+vertices[9].y+vertices[5].y;
-    sumZ = vertices[1].z+vertices[9].z+vertices[5].z;
-    output.Add(new Triangle(vertices[1], vertices[9], vertices[5]));
-   
-    // Triangle 5
-    sumX = vertices[1].x+vertices[5].x+vertices[6].x;
-    sumY = vertices[1].y+vertices[5].y+vertices[6].y;
-    sumZ = vertices[1].z+vertices[5].z+vertices[6].z;
-    output.Add(new Triangle(vertices[1], vertices[5], vertices[6]));
-    
-
-    // Triangle 6
-    sumX = vertices[3].x+vertices[7].x+vertices[11].x;
-    sumY = vertices[3].y+vertices[7].y+vertices[11].y;
-    sumZ = vertices[3].z+vertices[7].z+vertices[11].z;
-    output.Add(new Triangle(vertices[3], vertices[7], vertices[11]));
-    
-    // Triangle 7
-    sumX = vertices[3].x+vertices[11].x+vertices[2].x;
-    sumY = vertices[3].y+vertices[11].y+vertices[2].y;
-    sumZ = vertices[3].z+vertices[11].z+vertices[2].z;
-    output.Add(new Triangle(vertices[3], vertices[11], vertices[2]));
-   
-    // Triangle 8
-    sumX = vertices[3].x+vertices[2].x+vertices[12].x;
-    sumY = vertices[3].y+vertices[2].y+vertices[12].y;
-    sumZ = vertices[3].z+vertices[2].z+vertices[12].z;
-    output.Add(new Triangle(vertices[3], vertices[2], vertices[12]));
-    
-    // Triangle 9
-    sumX = vertices[3].x+vertices[12].x+vertices[8].x;
-    sumY = vertices[3].y+vertices[12].y+vertices[8].y;
-    sumZ = vertices[3].z+vertices[12].z+vertices[8].z;
-    output.Add(new Triangle(vertices[3], vertices[12], vertices[8]));
-    
-    // Triangle 10
-    sumX = vertices[3].x+vertices[8].x+vertices[7].x;
-    sumY = vertices[3].y+vertices[8].y+vertices[7].y;
-    sumZ = vertices[3].z+vertices[8].z+vertices[7].z;
-    output.Add(new Triangle(vertices[3], vertices[8], vertices[7]));
-   
-    //Triangle 11
-    sumX = vertices[10].x+vertices[7].x+vertices[4].x;
-    sumY = vertices[10].y+vertices[7].y+vertices[4].y;
-    sumZ = vertices[10].z+vertices[7].z+vertices[4].z;
-    output.Add(new Triangle(vertices[10], vertices[7], vertices[4]));
-   
-    // Triangle 12
-    sumX = vertices[4].x+vertices[7].x+vertices[8].x;
-    sumY = vertices[4].y+vertices[7].y+vertices[8].y;
-    sumZ = vertices[4].z+vertices[7].z+vertices[8].z;
-    output.Add(new Triangle(vertices[4], vertices[7], vertices[8]));
-    
-    // Triangle 13
-    sumX = vertices[4].x+vertices[8].x+vertices[9].x;
-    sumY = vertices[4].y+vertices[8].y+vertices[9].y;
-    sumZ = vertices[4].z+vertices[8].z+vertices[9].z;
-    output.Add(new Triangle(vertices[4], vertices[8], vertices[9]));
-    
-    // Triangle 14
-    sumX = vertices[9].x+vertices[8].x+vertices[12].x;
-    sumY = vertices[9].y+vertices[8].y+vertices[12].y;
-    sumZ = vertices[9].z+vertices[8].z+vertices[12].z;
-    output.Add(new Triangle(vertices[9], vertices[8], vertices[12]));
-   
-    // Triangle 15
-    sumX = vertices[9].x+vertices[12].x+vertices[5].x;
-    sumY = vertices[9].y+vertices[12].y+vertices[5].y;
-    sumZ = vertices[9].z+vertices[12].z+vertices[5].z;
-    output.Add(new Triangle(vertices[9], vertices[12], vertices[5]));
-   
-    // Triangle 16
-    sumX = vertices[5].x+vertices[12].x+vertices[2].x;
-    sumY = vertices[5].y+vertices[12].y+vertices[2].y;
-    sumZ = vertices[5].z+vertices[12].z+vertices[2].z;
-    output.Add(new Triangle(vertices[5], vertices[12], vertices[2]));
-    
-    // Triangle 17
-    sumX = vertices[5].x+vertices[2].x+vertices[6].x;
-    sumY = vertices[5].y+vertices[2].y+vertices[6].y;
-    sumZ = vertices[5].z + vertices[2].z + vertices[6].z;
-    output.Add(new Triangle(vertices[5], vertices[2], vertices[6]));
-   
-    // Triangle 18
-    sumX = vertices[6].x+vertices[2].x+vertices[11].x;
-    sumY = vertices[6].y+vertices[2].y+vertices[11].y;
-    sumZ = vertices[6].z+vertices[2].z+vertices[11].z;
-    output.Add(new Triangle(vertices[6], vertices[2], vertices[11]));
-   
-    // Triangle 19
-    sumX = vertices[6].x+vertices[11].x+vertices[10].x;
-    sumY = vertices[6].y+vertices[11].y+vertices[10].y;
-    sumZ = vertices[6].z+vertices[11].z+vertices[10].z;
-    output.Add(new Triangle(vertices[6], vertices[11], vertices[10]));
-    
-    // Triangle 20
-    sumX = vertices[10].x+vertices[11].x+vertices[7].x;
-    sumY = vertices[10].y+vertices[11].y+vertices[7].y;
-    sumZ = vertices[10].z + vertices[11].z + vertices[7].z;
-    output.Add(new Triangle(vertices[10], vertices[11], vertices[7]));
+    // === Faces of the Original 3 Triforces ===
+    output.Add(new Triangle(vertices[1], vertices[6], vertices[10]));   // 0
+    output.Add(new Triangle(vertices[1], vertices[10], vertices[4]));   // 1
+    output.Add(new Triangle(vertices[1], vertices[4], vertices[9]));    // 2
+    output.Add(new Triangle(vertices[4], vertices[8], vertices[9]));    // 3
+    output.Add(new Triangle(vertices[9], vertices[8], vertices[12]));   // 4
+    output.Add(new Triangle(vertices[6], vertices[11], vertices[10]));  // 5
+    output.Add(new Triangle(vertices[1], vertices[5], vertices[6]));    // 6
+    output.Add(new Triangle(vertices[4], vertices[7], vertices[8]));    // 7
+    output.Add(new Triangle(vertices[3], vertices[2], vertices[12]));   // 8
+    output.Add(new Triangle(vertices[3], vertices[11], vertices[2]));   // 9
+    output.Add(new Triangle(vertices[5], vertices[12], vertices[2]));   // 10
+    output.Add(new Triangle(vertices[3], vertices[12], vertices[8]));   // 11
+    output.Add(new Triangle(vertices[3], vertices[8], vertices[7]));    // 12
+    output.Add(new Triangle(vertices[3], vertices[7], vertices[11]));   // 13
+    output.Add(new Triangle(vertices[9], vertices[12], vertices[5]));   // 14
+    output.Add(new Triangle(vertices[10], vertices[7], vertices[4]));   // 15
+    output.Add(new Triangle(vertices[5], vertices[2], vertices[6]));    // 16
+    output.Add(new Triangle(vertices[6], vertices[2], vertices[11]));   // 17
+    output.Add(new Triangle(vertices[1], vertices[9], vertices[5]));    // 18
+    output.Add(new Triangle(vertices[10], vertices[11], vertices[7]));  // 19
 
 
     // Assign neighbors
-    output[0].AssignNeighbors(output[1],output[4],output[18]);
-    output[1].AssignNeighbors(output[2],output[0],output[10]);
-    output[2].AssignNeighbors(output[1],output[12],output[3]);
-    output[3].AssignNeighbors(output[2],output[14],output[4]);
-    output[4].AssignNeighbors(output[3],output[16],output[0]);
-    output[5].AssignNeighbors(output[19],output[6],output[9]);
-    output[6].AssignNeighbors(output[5],output[17],output[7]);
-    output[7].AssignNeighbors(output[6],output[15],output[8]);
-    output[8].AssignNeighbors(output[7],output[13],output[9]);
-    output[9].AssignNeighbors(output[8],output[11],output[5]);
-    output[10].AssignNeighbors(output[1],output[19],output[11]);
-    output[11].AssignNeighbors(output[10],output[9],output[12]);
+     output[0].AssignNeighbors(output[1], output[4], output[18]);
+     output[1].AssignNeighbors(output[2], output[0], output[10]);
+     output[2].AssignNeighbors(output[1], output[12],output[3]);
+     output[3].AssignNeighbors(output[2], output[14],output[4]);
+     output[4].AssignNeighbors(output[3], output[16],output[0]);
+     output[5].AssignNeighbors(output[19],output[6],output[9]);
+     output[6].AssignNeighbors(output[5], output[17],output[7]);
+     output[7].AssignNeighbors(output[6], output[15],output[8]);
+     output[8].AssignNeighbors(output[7], output[13],output[9]);
+     output[9].AssignNeighbors(output[8], output[11],output[5]);
+    output[10].AssignNeighbors(output[1], output[19],output[11]);
+    output[11].AssignNeighbors(output[10],output[9], output[12]);
     output[12].AssignNeighbors(output[11],output[13],output[2]);
-    output[13].AssignNeighbors(output[12],output[8],output[14]);
+    output[13].AssignNeighbors(output[12],output[8], output[14]);
     output[14].AssignNeighbors(output[13],output[15],output[3]);
-    output[15].AssignNeighbors(output[14],output[7],output[16]);
+    output[15].AssignNeighbors(output[14],output[7], output[16]);
     output[16].AssignNeighbors(output[15],output[17],output[4]);
-    output[17].AssignNeighbors(output[16],output[6],output[18]);
+    output[17].AssignNeighbors(output[16],output[6], output[18]);
     output[18].AssignNeighbors(output[17],output[19],output[0]);
-    output[19].AssignNeighbors(output[18],output[5],output[10]);
+    output[19].AssignNeighbors(output[18],output[5], output[10]);
+
+    // --- Number tris ---
+    int count = 0;
+    foreach (Triangle t in output)
+    {
+      t.index = count;
+      count++;
+    }
 
     return output;
   }

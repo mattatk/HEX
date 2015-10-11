@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Triangle
 {
   public Vector3 v1, v2, v3, center;
-  public int subdivisionLevel;
+  public int subdivisionLevel, index;
   public Triangle top, right, left;
   public Triangle instance, parent, childMid, childTop, childLeft, childRight;
   public TriforcePosition triforcePosition;
@@ -51,6 +51,27 @@ public class Triangle
     childRight = cr;
   }
 
+  public Triangle ReturnClosest(Triangle tri)
+  {
+    float mag1 = (tri.center - this.top.center).sqrMagnitude;
+    float mag2 = (this.right.center - tri.center).sqrMagnitude;
+    float mag3 = (this.left.center - tri.center).sqrMagnitude;
+
+    if(mag1 < mag2 && mag1 < mag3)
+    {
+      return this.childTop;
+    }
+    if(mag2 < mag1 && mag2 < mag3)
+    {
+      return this.childRight;
+    }
+    if(mag3 < mag1 && mag3 < mag2)
+    {
+      return this.childLeft;
+    }
+    
+    return null;
+  }
   
   public Triforce OriginalToTriforce(List<Triforce> tfs)
   {
