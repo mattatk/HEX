@@ -26,12 +26,12 @@ public class Triangle
   }
 
   // Called for initial polygon
-  public Triangle(Vector3 x, Vector3 y, Vector3 z, Vector3 c)
+  public Triangle(Vector3 x, Vector3 y, Vector3 z)
   {
     v1 = x;
     v2 = y;
     v3 = z;
-    center = c;
+    center = (v1 + v2 + v3) / 3;
     instance = this;
     parent = null;
   }
@@ -51,7 +51,7 @@ public class Triangle
     childRight = cr;
   }
 
-  /*
+  
   public Triforce OriginalToTriforce(List<Triforce> tfs)
   {
     Triforce triforce = new Triforce();
@@ -62,12 +62,12 @@ public class Triangle
     }
     return triforce;
   }
-  */
+  
  } 
 
 
 public enum TriforcePosition{None, Mid, Top, Right, Left};
-/*
+
 public class Triforce
 {
   public Triangle original, mid, top, right, left;
@@ -88,7 +88,7 @@ public class Triforce
     nz = tf3;
   }
 }
-
+/*
 public class Hexagon
 {
   Vector3 center, ne, e, se, sw, w, nw;

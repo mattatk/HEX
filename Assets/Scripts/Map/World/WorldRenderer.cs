@@ -122,7 +122,7 @@ public class WorldRenderer : MonoBehaviour
 
     foreach (Triangle tri in sphere.finalTris)
     {
-      float scale = tri.subdivisionLevel>0?1.025f : 1.15f;
+      float scale = tri.subdivisionLevel>0?1.125f : 1.4f;
 
       Vector3 midPointTop = (tri.center+tri.top.center) / 2,
               midPointRight = (tri.center+tri.right.center) / 2,
