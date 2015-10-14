@@ -23,6 +23,7 @@ public class Triangle
     parent = p;
     triforcePosition = tp;
     subdivisionLevel = sl;
+    index = -1;
   }
 
   // Called for initial polygon
@@ -34,6 +35,7 @@ public class Triangle
     center = (v1 + v2 + v3) / 3;
     instance = this;
     parent = null;
+    index = -1;
   }
 
   public void AssignNeighbors(Triangle nt, Triangle nr, Triangle nl)
@@ -51,25 +53,46 @@ public class Triangle
     childRight = cr;
   }
 
-  public Triangle ReturnClosest(Triangle tri)
+  public Triangle ReturnClosestChild(Triangle orgChild)
   {
-    float mag1 = (tri.center - this.top.center).sqrMagnitude;
-    float mag2 = (this.right.center - tri.center).sqrMagnitude;
-    float mag3 = (this.left.center - tri.center).sqrMagnitude;
+    float mag1 = (this.childTop.center - orgChild.center).sqrMagnitude;
+    float mag2 = (this.childRight.center - orgChild.center).sqrMagnitude;
+    float mag3 = (this.childLeft.center - orgChild.center).sqrMagnitude;
 
-    if(mag1 < mag2 && mag1 < mag3)
+    if(mag1 <= mag2 && mag1 < mag3)
     {
       return this.childTop;
     }
-    if(mag2 < mag1 && mag2 < mag3)
+    /*
+    else if (mag1 == mag2 && mag1 < mag3)
     {
       return this.childRight;
     }
-    if(mag3 < mag1 && mag3 < mag2)
+    */
+
+    if(mag2 <= mag1 && mag2 <= mag3)
+    {
+      return this.childRight;
+    }
+    /*
+    else if (mag2 == mag3 && mag2 < mag1)
     {
       return this.childLeft;
     }
-    
+    */
+
+    if (mag3 <= mag1 && mag3 <= mag2)
+    {
+      return this.childLeft;
+    }
+    /*
+    else if (mag3 == mag1 && mag3 <= mag2)
+    {
+      return this.childTop;
+    }
+    */
+
+    Debug.Log(orgChild.index+": mag1=>"+ mag1+" mag2=>"+mag2+" mag3=>"+mag3);
     return null;
   }
   
