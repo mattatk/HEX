@@ -54,48 +54,93 @@ public class Triangle
   }
 
   public Triangle ReturnClosestChild(Triangle orgChild)
-  {
-    float mag1 = (this.childTop.center - orgChild.center).sqrMagnitude;
-    float mag2 = (this.childRight.center - orgChild.center).sqrMagnitude;
-    float mag3 = (this.childLeft.center - orgChild.center).sqrMagnitude;
-
-    if(mag1 <= mag2 && mag1 < mag3)
+  { 
+    float mag1 = (this.childTop.center - orgChild.center).sqrMagnitude,
+          mag2 = (this.childRight.center - orgChild.center).sqrMagnitude,
+          mag3 = (this.childLeft.center - orgChild.center).sqrMagnitude;
+    /*
+    if(mag1 == mag2 || mag2 == mag3 || mag3 == mag1)
+    {
+      return null;
+    }
+    */
+    if(mag1 <= mag2 && mag1 <= mag3)
     {
       return this.childTop;
     }
-    /*
-    else if (mag1 == mag2 && mag1 < mag3)
-    {
-      return this.childRight;
-    }
-    */
 
     if(mag2 <= mag1 && mag2 <= mag3)
     {
       return this.childRight;
     }
-    /*
-    else if (mag2 == mag3 && mag2 < mag1)
-    {
-      return this.childLeft;
-    }
-    */
 
     if (mag3 <= mag1 && mag3 <= mag2)
     {
       return this.childLeft;
     }
-    /*
-    else if (mag3 == mag1 && mag3 <= mag2)
-    {
-      return this.childTop;
-    }
-    */
+    
 
     Debug.Log(orgChild.index+": mag1=>"+ mag1+" mag2=>"+mag2+" mag3=>"+mag3);
     return null;
+    
   }
-  
+
+  public Triangle NeighborOne(Triangle orgTri)
+  {
+    //Find the two closest neighbors of this Triangle from the originalTri
+    float n1 = (this.top.center - orgTri.center).sqrMagnitude,
+          n2 = (this.right.center - orgTri.center).sqrMagnitude,
+          n3 = (this.left.center - orgTri.center).sqrMagnitude;
+    
+    if (n1 <= n3 && n2 <= n3)
+    {
+      //Could return closest child to top or right, ultimately we need both, we choose top here because we're in NeighborOne
+      return this.top.ReturnClosestChild(orgTri);
+    }
+    if (n1 <= n2 && n3 <= n2)
+    {
+      //Top or left
+      return this.left.ReturnClosestChild(orgTri);
+    }
+    if (n2 <= n1 && n3 <= n1)
+    {
+      //Right or Left
+      return this.right.ReturnClosestChild(orgTri);
+    }
+    Debug.Log(orgTri.index + ": mag1=>" + n1 + " mag2=>" + n2 + " mag3=>" + n3);
+    return null;
+  }
+
+  //B
+  //O
+  //U
+
+  public Triangle NeighborTwo(Triangle orgTri)
+  {
+    //Find the two closest neighbors of this Triangle from the originalTri
+    float n1 = (this.top.center - orgTri.center).sqrMagnitude,
+          n2 = (this.right.center - orgTri.center).sqrMagnitude,
+          n3 = (this.left.center - orgTri.center).sqrMagnitude;
+
+    if (n1 <= n3 && n2 <= n3)
+    {
+      //Could return closest child to top or right, ultimately we need both, we choose top here because we're in NeighborOne
+      return this.right.ReturnClosestChild(orgTri);
+    }
+    if (n1 <= n2 && n3 <= n2)
+    {
+      //Top or left
+      return this.top.ReturnClosestChild(orgTri);
+    }
+    if (n2 <= n1 && n3 <= n1)
+    {
+      //Right or Left
+      return this.left.ReturnClosestChild(orgTri);
+    }
+    Debug.Log(orgTri.index + ": mag1=>" + n1 + " mag2=>" + n2 + " mag3=>" + n3);
+    return null;
+  }
+  /*
   public Triforce OriginalToTriforce(List<Triforce> tfs)
   {
     Triforce triforce = new Triforce();
@@ -106,7 +151,7 @@ public class Triangle
     }
     return triforce;
   }
-  
+  */
  } 
 
 

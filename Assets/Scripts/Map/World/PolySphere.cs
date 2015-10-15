@@ -32,8 +32,7 @@ public class PolySphere
       currentTris = new List<Triangle>(nextTris);
       nextTris = new List<Triangle>();
       //triforces = new List<Triforce>();
-      
-      // --- Create children ---
+
       foreach (Triangle tri in currentTris)
       {
         //Bisect
@@ -42,25 +41,24 @@ public class PolySphere
         Vector3 v3 = Vector3.Lerp(tri.v3, tri.v1, .5f);
 
         //Project onto sphere
-        v1 *= (float)(1.902113 / v1.magnitude)*scale; //golden rectangle sphere radius 1.902113
-        v2 *= (float)(1.902113 / v2.magnitude)*scale;
-        v3 *= (float)(1.902113 / v3.magnitude)*scale;
+        v1 *= (float)(1.902084 / v1.magnitude) * scale; //golden rectangle sphere radius 1.902084, as calculated by unity
+        v2 *= (float)(1.902084 / v2.magnitude) * scale;
+        v3 *= (float)(1.902084 / v3.magnitude) * scale;
 
         //Add the four new triangles
-        Triangle mid = new Triangle(v1, v2, v3, tri, TriforcePosition.Mid, i+1);
-        Triangle top = new Triangle(tri.v1, v1, v3, tri, TriforcePosition.Top, i+1);
-        Triangle right = new Triangle(v1, tri.v2, v2, tri, TriforcePosition.Right, i+1);
-        Triangle left = new Triangle(v3, v2, tri.v3, tri, TriforcePosition.Left, i+1);
-       
+        Triangle mid = new Triangle(v1, v2, v3, tri, TriforcePosition.Mid, subdivisions);
         nextTris.Add(mid);   // Center of triforce
+
+        Triangle top = new Triangle(tri.v1, v1, v3, tri, TriforcePosition.Top, subdivisions);
         nextTris.Add(top);
+
+        Triangle right = new Triangle(v1, tri.v2, v2, tri, TriforcePosition.Right, subdivisions);
         nextTris.Add(right);
+
+        Triangle left = new Triangle(v3, v2, tri.v3, tri, TriforcePosition.Left, subdivisions);
         nextTris.Add(left);
 
         tri.AssignChildren(mid, top, left, right);
-        //These new triangles (along with the original, for reference later, make a triforce)
-        //Triforce tf = new Triforce(tri, mid, top, right, left);
-        //triforces.Add(tf);
       }
 
       // --- Number tris ---
@@ -70,20 +68,18 @@ public class PolySphere
         t.index = count;
         count++;
       }
-
-      // --- Assign neighbors ---
+      //Set Neighbors
       foreach (Triangle tri in currentTris)
       {
+
         tri.childMid.AssignNeighbors(tri.childTop, tri.childRight, tri.childLeft);
+        tri.childTop.AssignNeighbors(tri.NeighborOne(tri.childTop), tri.childMid, tri.NeighborTwo(tri.childTop));
+        tri.childRight.AssignNeighbors(tri.NeighborOne(tri.childRight), tri.NeighborTwo(tri.childRight), tri.childMid);
+        tri.childLeft.AssignNeighbors(tri.childMid, tri.NeighborOne(tri.childLeft), tri.NeighborTwo(tri.childLeft));
 
-        tri.childTop.AssignNeighbors(tri.top.childTop, null, tri.childMid);
-
-        tri.childRight.AssignNeighbors(tri.childMid, tri.childMid, null);
-
-        tri.childLeft.AssignNeighbors(tri.right.childRight, tri.childMid, tri.left.childLeft);
       }
 
-      // --- Add to subdivided output ---
+      //Save our subdivided levels
       subdividedTris.Add(nextTris);
     }
 
@@ -93,6 +89,16 @@ public class PolySphere
     //finalTris.RemoveAt(finalTris[0].parent.childRight.top.index);
     //finalTris.RemoveAt(finalTris[0].parent.childLeft.top.index);
   }
+
+
+  // BARRIER
+  // OF
+  // USEFULNESS
+  // BETWEEN
+  // TWO
+  // SIMILAR
+  // FUNCTIONS
+
 
   void SubdivideAndDuals(int divisions)
   {
@@ -117,9 +123,9 @@ public class PolySphere
         Vector3 v3 = Vector3.Lerp(tri.v3, tri.v1, .5f);
 
         //Project onto sphere
-        v1 *= (float)(1.902113 / v1.magnitude) * scale; //golden rectangle sphere radius 1.902113
-        v2 *= (float)(1.902113 / v2.magnitude) * scale;
-        v3 *= (float)(1.902113 / v3.magnitude) * scale;
+        v1 *= (float)(1.902084 / v1.magnitude) * scale; //golden rectangle sphere radius 1.902084
+        v2 *= (float)(1.902084 / v2.magnitude) * scale;
+        v3 *= (float)(1.902084 / v3.magnitude) * scale;
 
         //Add the four new triangles
         Triangle mid = new Triangle(v1, v2, v3, tri, TriforcePosition.Mid, subdivisions);
@@ -135,9 +141,6 @@ public class PolySphere
         nextTris.Add(left);
 
         tri.AssignChildren(mid, top, left, right);
-        //These new triangles (along with the original, for reference later, make a triforce)
-        //Triforce tf = new Triforce(tri, mid, n1, n2, n3);
-        //triforces.Add(tf);
       }
 
       // --- Number tris ---
@@ -147,23 +150,20 @@ public class PolySphere
         t.index = count;
         count++;
       }
-
+      //Set Neighbors
       foreach (Triangle tri in currentTris)
       {
 
         tri.childMid.AssignNeighbors(tri.childTop, tri.childRight, tri.childLeft);
-        tri.childTop.AssignNeighbors(tri.top.ReturnClosestChild(tri.childTop), tri.childMid, tri.left.ReturnClosestChild(tri.childTop));
-        tri.childRight.AssignNeighbors(tri.top.ReturnClosestChild(tri.childRight), tri.right.ReturnClosestChild(tri.childRight), tri.childMid);
-        tri.childLeft.AssignNeighbors(tri.childMid, tri.right.ReturnClosestChild(tri.childLeft), tri.left.ReturnClosestChild(tri.childLeft));
-        
+        tri.childTop.AssignNeighbors(tri.NeighborOne(tri.childTop), tri.childMid, tri.NeighborTwo(tri.childTop));
+        tri.childRight.AssignNeighbors(tri.NeighborOne(tri.childRight), tri.NeighborTwo(tri.childRight), tri.childMid);
+        tri.childLeft.AssignNeighbors(tri.childMid, tri.NeighborOne(tri.childLeft), tri.NeighborTwo(tri.childLeft));
+
       }
-
       //Save our subdivided levels
-      subdividedTris.Add(nextTris);
-
-      
+      subdividedTris.Add(nextTris); 
     }
-    //Now, after subdivision, get the dual polygon triangles
+    //Now, after subdivision, create the hexagons in the dual and thus the WORLD!
 
     dualTris.Add(nextTris);
 
@@ -191,7 +191,7 @@ public class PolySphere
             zy2 = new Vector3(0, 1, -goldRat) * scale,
             zy3 = new Vector3(0, -1, -goldRat) * scale,
             zy4 = new Vector3(0, -1, goldRat) * scale;
-
+    //Debug.Log(xz4.magnitude);
     vertices.Add(origin);         // 0
     vertices.Add(origin + xy1);   // 1
     vertices.Add(origin + xy2);   // 2
@@ -205,8 +205,6 @@ public class PolySphere
     vertices.Add(origin + zy2);   // 10
     vertices.Add(origin + zy3);   // 11
     vertices.Add(origin + zy4);   // 12
-
-    //(float)(1.902113 / v3.magnitude)*scale
 
     // === Faces of the Original 5 Triforces ===
     output.Add(new Triangle(vertices[1], vertices[6], vertices[10]));   // 0
@@ -233,7 +231,7 @@ public class PolySphere
     output.Add(new Triangle(vertices[10], vertices[11], vertices[7]));  // 19
 
 
-    // Assign neighbors
+    // Assign initial neighbors
     output[0].AssignNeighbors(output[1], output[4], output[18]);
     output[1].AssignNeighbors(output[2], output[0], output[10]);
     output[2].AssignNeighbors(output[1], output[12],output[3]);

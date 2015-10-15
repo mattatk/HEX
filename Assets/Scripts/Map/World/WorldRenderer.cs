@@ -5,12 +5,11 @@ using System.Collections.Generic;
 public class WorldRenderer : MonoBehaviour
 {
   public int subdivisions = 1;
+  public int scale = 1;
   public GameObject worldPrefab, textMeshPrefab;
   Zone currentZone;
   public GameObject RenderWorld(World world, TileSet tileSet)
   {
-    int scale = 4;
-
     currentZone = GameManager.currentZone;
     GameObject output = (GameObject)Instantiate(worldPrefab, Vector3.zero, Quaternion.identity);
 
