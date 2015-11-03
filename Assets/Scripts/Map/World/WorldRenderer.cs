@@ -25,8 +25,8 @@ public class WorldRenderer : MonoBehaviour
 
     PolySphere sphere = new PolySphere(scale, subdivisions);
 
-    LabelCenters(sphere.finalTris);
-    LabelNeighbors(sphere);
+    //LabelCenters(sphere.finalTris);
+    //LabelNeighbors(sphere);
 
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();

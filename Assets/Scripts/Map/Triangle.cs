@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class Triangle
 {
+  public GameObject gO;
+  public Transform trans;
   public Vector3 v1, v2, v3, center;
   public int subdivisionLevel, index;
   public Triangle top, right, left;
@@ -19,6 +21,10 @@ public class Triangle
     v2 = y;
     v3 = z;
     center = (v1 + v2 + v3) / 3;
+    gO = new GameObject();
+    trans = gO.transform;
+    trans.position = center;
+    trans.rotation = Quaternion.identity;
     instance = this;
     parent = p;
     triforcePosition = tp;
@@ -33,6 +39,10 @@ public class Triangle
     v2 = y;
     v3 = z;
     center = (v1 + v2 + v3) / 3;
+    gO = new GameObject();
+    trans = gO.transform;
+    trans.position = center;
+    trans.rotation = Quaternion.identity;
     instance = this;
     parent = null;
     index = -1;
@@ -58,12 +68,7 @@ public class Triangle
     float mag1 = (this.childTop.center - orgChild.center).sqrMagnitude,
           mag2 = (this.childRight.center - orgChild.center).sqrMagnitude,
           mag3 = (this.childLeft.center - orgChild.center).sqrMagnitude;
-    /*
-    if(mag1 == mag2 || mag2 == mag3 || mag3 == mag1)
-    {
-      return null;
-    }
-    */
+
     if(mag1 <= mag2 && mag1 <= mag3)
     {
       return this.childTop;
@@ -81,8 +86,7 @@ public class Triangle
     
 
     Debug.Log(orgChild.index+": mag1=>"+ mag1+" mag2=>"+mag2+" mag3=>"+mag3);
-    return null;
-    
+    return null;  
   }
 
   public Triangle NeighborOne(Triangle orgTri)
@@ -98,6 +102,7 @@ public class Triangle
       return this.top.ReturnClosestChild(orgTri);
     }
     if (n1 <= n2 && n3 <= n2)
+
     {
       //Top or left
       return this.left.ReturnClosestChild(orgTri);
@@ -124,7 +129,7 @@ public class Triangle
 
     if (n1 <= n3 && n2 <= n3)
     {
-      //Could return closest child to top or right, ultimately we need both, we choose top here because we're in NeighborOne
+      //Could return closest child to top or right, ultimately we need both, we choose right here because we're in NeighborTwo
       return this.right.ReturnClosestChild(orgTri);
     }
     if (n1 <= n2 && n3 <= n2)
@@ -154,7 +159,6 @@ public class Triangle
   */
  } 
 
-
 public enum TriforcePosition{None, Mid, Top, Right, Left};
 
 public class Triforce
@@ -177,30 +181,6 @@ public class Triforce
     nz = tf3;
   }
 }
-/*
-public class Hexagon
-{
-  Vector3 center, ne, e, se, sw, w, nw;
-  public Hexagon(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6)
-  {
-    ne = v1;
-    e = v2;
-    se = v3;
-    sw = v4;
-    w = v5;
-    nw = v6;
-    center = (ne + e + se + sw + w + nw) / 6;
-  }
-  public List<Triangle> ToRender()
-  {
-    List<Triangle> hexTris = new List<Triangle>();
-    hexTris.Add(new Triangle(center, ne, e));
-    hexTris.Add(new Triangle(center, e, se));
-    hexTris.Add(new Triangle(center, se, sw));
-    hexTris.Add(new Triangle(center, sw, w));
-    hexTris.Add(new Triangle(center, w, nw));
-    hexTris.Add(new Triangle(center, nw, ne));
-    return hexTris;
-  }
-}
-*/
+
+
+
