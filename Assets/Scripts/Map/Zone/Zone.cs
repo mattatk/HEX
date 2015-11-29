@@ -65,13 +65,13 @@ public class Zone {
     //4th SetHeights
     AddPerlinHeight(maxHeight * 2, 1);
     AddPerlinHeight(maxHeight * .5f, 4);
-    AddPerlinHeight(maxHeight * .25f, 8);
+    AddPerlinHeight(maxHeight * .25f, 5);
 
     SetTypeByHeight(maxHeight);
 
     AnalyzeTiles();
 
-    CutIntoEquilateralTriangle();
+    //CutIntoEquilateralTriangle();
   }
 
   public Zone(int w)
@@ -248,7 +248,7 @@ public class Zone {
         float height = Mathf.PerlinNoise( (x/wi+seedx)*lacunarity, (y/wi+seedy)*lacunarity);
         height -= .5f;    // So that subtractions can happen
 
-        tiles[x,y].height += (int)(height * scale * 2) / 2.0f;
+        tiles[x,y].height += (int)(height * scale * 2f) / 2.0f;
       }
     }
   }

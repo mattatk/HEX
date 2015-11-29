@@ -5,7 +5,7 @@ public class WorldManager : MonoBehaviour {
 
     // === Public ===
     public TileSet regularTileSet;
-
+    public float maxMag = 10;
     // === Cache ===
     WorldRenderer worldRenderer;
     GameObject currentWorldObject;

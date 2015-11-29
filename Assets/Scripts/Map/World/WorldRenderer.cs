@@ -6,18 +6,26 @@ public class WorldRenderer : MonoBehaviour
 {
   public int subdivisions = 1;
   public int scale = 1;
+  public int i = 0;
   public GameObject worldPrefab, textMeshPrefab;
-  Zone currentZone;
+  //Zone currentZone;
+  public bool controlx;
+  public bool controly;
+  public bool controlz;
   public GameObject RenderWorld(World world, TileSet tileSet)
   {
-    currentZone = GameManager.currentZone;
+    return RecursiveRender(world, tileSet, controlx, controly, controlz);
+  }
+  public GameObject RecursiveRender(World world, TileSet tileSet, bool cx, bool cy, bool cz)
+  {
+    //currentZone = GameManager.currentZone;
     GameObject output = (GameObject)Instantiate(worldPrefab, Vector3.zero, Quaternion.identity);
 
     MeshFilter myFilter = output.GetComponent<MeshFilter>();
     MeshCollider myCollider = output.GetComponent<MeshCollider>();
 
     Vector3 origin = Vector3.zero;
-    Vector2 uv0 = new Vector2(0, 0),
+    Vector2 uv0 = Vector2.zero,
           uv1 = new Vector2(.5f, 1),
           uv2 = new Vector2(1, 0);
 
@@ -33,35 +41,48 @@ public class WorldRenderer : MonoBehaviour
     List<Vector3> normals = new List<Vector3>();
     List<Vector2> uvs = new List<Vector2>();
 
-    // Generate polygons, create neighbors
-    foreach (Triangle tri in sphere.finalTris)
+    //Generate quadrant
+    foreach (SphereTile st in sphere.sTiles)
     {
-      // Add the verts again
-      vertices.Add(tri.v1);
-      normals.Add(Vector3.Normalize(origin + tri.v1));
-      uvs.Add(uv1 + uvOffset);
-      vertices.Add(tri.v2);
-      normals.Add(Vector3.Normalize(origin + tri.v2));
-      uvs.Add(uv2 + uvOffset);
-      vertices.Add(tri.v3);
-      normals.Add(Vector3.Normalize(origin + tri.v3));
-      uvs.Add(uv2 + uvOffset);
+      if (ControlX(st.center.x) && ControlY(st.center.y) && ControlZ(st.center.z))
+      {
+        foreach (Triangle tri in st.faceTris)
+        {
+          // Add the verts again
+          vertices.Add(tri.v1);
+          normals.Add(Vector3.Normalize(origin + tri.v1));
+          uvs.Add(uv0 + uvOffset);
+          vertices.Add(tri.v2);
+          normals.Add(Vector3.Normalize(origin + tri.v2));
+          uvs.Add(uv1 + uvOffset);
+          vertices.Add(tri.v3);
+          normals.Add(Vector3.Normalize(origin + tri.v3));
+          uvs.Add(uv1 + uvOffset);
 
-      triangles.Add(vertices.Count - 3);
-      triangles.Add(vertices.Count - 2);
-      triangles.Add(vertices.Count - 1);
+          triangles.Add(vertices.Count - 3);
+          triangles.Add(vertices.Count - 2);
+          triangles.Add(vertices.Count - 1);
+        }
+        foreach (Triangle tri in st.sideTris)
+        {
+          // Add the verts again
+          vertices.Add(tri.v1);
+          normals.Add(Vector3.Normalize(origin + tri.v1));
+          uvs.Add(uv0 + uvOffset);
+          vertices.Add(tri.v2);
+          normals.Add(Vector3.Normalize(origin + tri.v2));
+          uvs.Add(uv1 + uvOffset);
+          vertices.Add(tri.v3);
+          normals.Add(Vector3.Normalize(origin + tri.v3));
+          uvs.Add(uv1 + uvOffset);
 
-      //GameObject centerMarker = (GameObject)GameObject.Instantiate(centerMarkerPrefab, tri.center, Quaternion.identity);
+          triangles.Add(vertices.Count - 3);
+          triangles.Add(vertices.Count - 2);
+          triangles.Add(vertices.Count - 1);
+        }
+      }
     }
-
-    /*
-    foreach(Triangle tri in allTriangles)
-    {
-      //Create a zone
-      Zone triZone = new Zone(tri);
-    }
-    */
-
+    //GameObject centerMarker = (GameObject)GameObject.Instantiate(centerMarkerPrefab, tri.center, Quaternion.identity);
     Mesh m = new Mesh();
     m.vertices = vertices.ToArray();
     m.triangles = triangles.ToArray();
@@ -71,7 +92,56 @@ public class WorldRenderer : MonoBehaviour
     myCollider.sharedMesh = m;
     myFilter.sharedMesh = m;
 
+    //Call our control function, which will iterate through the cyclic permutations to define 8 quadrants
+    Cycle(controlx, controly, controlz);
+    //Render the next quadrant
+    i++;
+    if (i <= 8)
+    {
+      RenderWorld(world, tileSet);
+    }
     return output;
+  }
+
+  public void Cycle(bool x, bool y, bool z)
+  {
+    //8 quadrants
+    if (!x && !y && !z)
+    {
+      controlz = true;
+    }
+    if (!x && !y && z)
+    {
+      controlz = false;
+      controly = true;
+    }
+    if (!x && y && !z)
+    {
+      controlz = true;
+    }
+    if (!x && y && z)
+    {
+      controlx = true;
+      controly = false;
+      controlz = false;
+    }
+    if (x && !y && !z)
+    {
+      controlz = true;
+    }
+    if (x && !y && z)
+    {
+      controly = true;
+      controlz = false;
+    }
+    if (x && y && !z)
+    {
+      controlz = true;
+    }
+    if (x && y && z)
+    {
+      controlx = controly = controlz = false;
+    }
   }
 
   void LabelNeighbors(PolySphere sphere)
@@ -145,6 +215,27 @@ public class WorldRenderer : MonoBehaviour
       textObj.name = "Face "+t.index;
       textObj.GetComponent<TextMesh>().text = t.index.ToString();
     }
+  }
+  public bool ControlX(float centerx)
+  {
+    if (controlx)
+      return (centerx >= 0);
+    else
+      return (centerx <= 0);
+  }
+  public bool ControlY(float centery)
+  {
+    if (controly)
+      return (centery >= 0);
+    else
+      return (centery <= 0);
+  }
+  public bool ControlZ(float centerz)
+  {
+    if (controlz)
+      return (centerz >= 0);
+    else
+      return (centerz <= 0);
   }
 }
 
