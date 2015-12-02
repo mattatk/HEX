@@ -18,9 +18,8 @@ public class WorldManager : MonoBehaviour
   {
     activeWorld = LoadWorld();
     worldRenderer = GetComponent<WorldRenderer>();
-
-     currentWorldObject = new GameObject("World");
-     worldTrans = currentWorldObject.transform;
+    currentWorldObject = new GameObject("World");
+    worldTrans = currentWorldObject.transform;
 
    //currentWorld = new World(WorldSize.Small, WorldType.Verdant, Season.Spring, AxisTilt.Slight);
 

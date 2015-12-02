@@ -5,6 +5,7 @@ using System.Linq;
 
 public class PolySphere
 {
+  public Vector3 origin;
   public int subdivisions = 3;
   public int scale = 1;
 
@@ -12,39 +13,35 @@ public class PolySphere
   public List<List<Triangle>> subdividedTris;
   public List<Triangle> finalTris;    // The finest level of subdivided tris
   public List<Hexagon> finalHexes, unitHexes;
-
   public List<SphereTile> sTiles;
-  //public List<Triforce> triforces;
-  //public SimplexNoise simplex;
-  public float randx;
-  public float randy;
-  public float randz;
-  public float weightx;
-  public float weighty;
-  public float weightz;
+ 
+  //For simplex
+  public static SimplexNoise simplex;
+  public float amplitude, lacunarity, persistence;
+  public int octaves, multiplier;
 
   public PolySphere()
   {
       
   }
-  public PolySphere(int s, int d)
+  public PolySphere(Vector3 o, int s, int d)
   {
+    origin = o;
     scale = s;
     subdivisions = d;
     //Subdivide(d);
     //For seeding dual centers
-    randx = Random.Range(0, 0.05f);
-    randy = Random.Range(0, 0.1f);
-    randz = Random.Range(0, 0.9f);
+    amplitude = Random.Range(0.01f, 0.1f);
+    lacunarity = Random.Range(0.2f, 2f);
+    persistence = Random.Range(0.1f, 0.9f);
     //Vector3 weights = Random.Vector3;
-    weightx = Random.Range(0.5f, 0.7f);
-    weighty = Random.Range(0.2f, 0.4f);
-    weightz = Random.Range(0, 0.1f);
-    //simplex = new SimplexNoise(GameManager.gameSeed);
+    octaves = Random.Range(1, 10);
+    multiplier = Random.Range(1, 24);
+    simplex = new SimplexNoise(GameManager.gameSeed);
      
     icosahedronTris = Icosahedron(scale);
  
-    SubdivideAndDuals(d);
+    SubdivideAndDuals();
 
   }
 
@@ -129,7 +126,7 @@ public class PolySphere
   // FUNCTIONS
 
 
-  void SubdivideAndDuals(int divisions)
+  void SubdivideAndDuals()
   {
     List<Triangle> currentTris;
     List<Triangle> nextTris = new List<Triangle>(icosahedronTris); //Original icosahedron
@@ -138,7 +135,7 @@ public class PolySphere
     sTiles = new List<SphereTile>();
     
     // Subdivide icosahedron
-    for (int i = 0; i < divisions; i++)
+    for (int i = 0; i < subdivisions; i++)
     {
       currentTris = new List<Triangle>(nextTris);
       nextTris = new List<Triangle>();
@@ -257,25 +254,8 @@ public class PolySphere
     //Build the SphereTiles!
     foreach(SphereTile st in sTiles)
     {
-      
       st.Build();
-      
-      //st.ScalePerlin(2, 2, 33f, 1, 2.0f);
-      //st.ScalePerlin(2, 2, 33f, 1, 2.0f);
-      //st.ScalePerlin(5, 2, 42f, 8, 5.0f);
-      //st.Smooth();
-      st.scale *= 10;
-      
-      /*Redacted, changed worldrenderer to look at sTiles
-      foreach (Triangle t in st.faceTris)
-      {
-        dualTris.Add(t);
-      }
-      foreach (Triangle t in st.sideTris)
-      {
-        dualTris.Add(t);
-      }
-      */
+      st.scale *= scale;
     }
     
     // === Cache unit hexagons ===
@@ -288,7 +268,7 @@ public class PolySphere
     //******* Then, we can run scale functions on it to make individual worlds
     //Seed
     //ScaleTrigPerlin();
-    ScalePerlin(2, 2, 33f, 1, 2.0f);
+    ScaleSimplex(PolySphere.simplex, octaves, multiplier, amplitude, lacunarity, persistence);
 
     //Set water depth using average of all scales 
     float sAverage = 0;
@@ -314,7 +294,7 @@ public class PolySphere
     }
     //finalTris = dualTris;
   }
-
+  /*  // Haven't yet been converted to work in PolySphere.cs
   public void ScaleTrigPerlin() //@TODO: think about this more
   {
     //float seed = Random.Range(0.1f,0.9f);
@@ -327,7 +307,8 @@ public class PolySphere
                             + weightx * Mathf.Cos(randx * st.center.x) + weighty * Mathf.Cos(randy * st.center.y) + weightz * Mathf.Cos(randz * st.center.z)))*100) / 100f;
     }
   }
-   // Haven't yet been converted to work in PolySphere.cs
+  
+  
   public void ScalePerlin(int octaves, int multiplier, float amplitude, int lacunarity, float persistence)
   {
     foreach(SphereTile st in sTiles)
@@ -336,16 +317,18 @@ public class PolySphere
       st.scale *= height;
     }
   }
-  /*
-  public void ScaleSimplex(SimplexNoise simplex, int octaves, int multiplier, float amplitude, int lacunarity, float persistence)
-  {
-    float seedx = Random.Range(-1.0f, 1.0f);
-    float seedy = Random.Range(-1.0f, 1.0f);
-    float height = Mathf.Abs(simplex.coherentNoise(center.x, center.y, center.z, octaves, multiplier, amplitude, lacunarity, persistence));
-    //float height = Mathf.PerlinNoise((center.x / maxMag + seedx) * lacunarity, (center.y / maxMag + seedy) * lacunarity);
-    scale *= height;
-  }
   */
+
+  public void ScaleSimplex(SimplexNoise simplex, int octaves, int multiplier, float amplitude, float lacunarity, float persistence)
+  {
+    foreach (SphereTile st in sTiles)
+    {
+      float height = Mathf.Abs(simplex.coherentNoise(st.center.x, st.center.y, st.center.z, octaves, multiplier, amplitude, lacunarity, persistence));
+      st.scale *= 24*(1 + height*100);
+      Debug.Log(height);
+    }
+  }
+  
   List<Triangle> Icosahedron(int scale)
   {
     List<Triangle> output = new List<Triangle>();

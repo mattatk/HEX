@@ -3,13 +3,11 @@ using System.Collections;
 
 public class CreateWorldCache : MonoBehaviour {
 
-  public int scale = 1, subdivisions = 3;
+  public int scale = 10, subdivisions = 3;
 
 	public void BuildCache  (World world) 
   {
     world.PrepForCache(scale, subdivisions);
-
-    
 
     try
     {

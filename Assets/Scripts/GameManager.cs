@@ -76,10 +76,12 @@ public class GameManager : MonoBehaviour
       break;
 
       case GameState.Caching:
+
         worldManagerObj = GameObject.FindWithTag("World Manager");
         worldManager = worldManagerObj.GetComponent<WorldManager>();
         worldCacher = worldManagerObj.GetComponent<CreateWorldCache>();
         worldCacher.BuildCache(worldManager.activeWorld);
+        worldManager.Initialize();
       break;
 
       default:

@@ -48,7 +48,7 @@ public class World
   {
     if (tiles == null || tiles.Count == 0)
     {
-      PolySphere sphere = new PolySphere(scale,subdivisions);
+      PolySphere sphere = new PolySphere(Vector3.zero, scale,subdivisions);
       AssignHeights(sphere);
     }
     else
