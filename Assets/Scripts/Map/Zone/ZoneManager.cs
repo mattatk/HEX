@@ -23,11 +23,11 @@ public class ZoneManager : MonoBehaviour
   List<Vector2> topTilePositions;
 
   // === Cache ===
-  LayerMask layermask;
+  //LayerMask layermask;
 
   public void Initialize (Zone z)
   {
-    layermask = 1<<8;   // Layer 8 is set up as "Chunk" in the Tags & Layers manager
+    //layermask = 1<<8;   // Layer 8 is set up as "Chunk" in the Tags & Layers manager
   }
 
   public void OnTapInput(Vector2 tap)

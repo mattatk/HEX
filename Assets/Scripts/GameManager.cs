@@ -10,16 +10,17 @@ using System.Collections;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
-public enum GameState {None, MainMenu, GalaxyMap, WorldMap, ZoneMap};
+public enum GameState {None, Caching, MainMenu, GalaxyMap, WorldMap, ZoneMap};
 
 public class GameManager : MonoBehaviour
 {
   // === Public Cache ===
-  public GameState beginningState = GameState.ZoneMap;
+  public GameState beginningState = GameState.WorldMap;
   public static string gameSeed = "sixtynine";
 
   // === Public Static Cache ===
   static GameState state;
+  public static Transform myTrans;
   public static GameState State {get{return state;} set{}}
 
   //For World/Zone
@@ -36,8 +37,12 @@ public class GameManager : MonoBehaviour
   public static MainUI mainUI;
   public static RoundManager roundManager;
 
+  // === Private Cache ===
+  static CreateWorldCache worldCacher;
+
   void Awake ()
-  {   
+  {
+    myTrans = transform;
     cam =                 Camera.main;
     zoneManager =         GetComponent<ZoneManager>();
     zoneRenderer =        GetComponent<ZoneRenderer>();
@@ -45,6 +50,7 @@ public class GameManager : MonoBehaviour
       zoneCameraControls =  Camera.main.GetComponent<ZoneViewCamera>();
     mainUI =              GetComponent<MainUI>();
     roundManager =        GetComponent<RoundManager>();
+
 
     // water = (GameObject)Instantiate(water,new Vector3(0,(float)Random.Range(4,5),0),Quaternion.identity);
     currentZone = new Zone(128); //so Hex doesn't null ref currentZone
@@ -61,6 +67,10 @@ public class GameManager : MonoBehaviour
       case GameState.ZoneMap:
         BuildZone();
       break;
+      case GameState.Caching:
+        worldCacher = GetComponent<CreateWorldCache>();
+        worldCacher.BuildCache();
+      break;
       default:
         Debug.LogError("Please set a state in GameManager.beginningState before playing.");
       break;
@@ -70,11 +80,10 @@ public class GameManager : MonoBehaviour
   void BuildWorld()
   {
     worldManager = GetComponent<WorldManager>();
-    currentWorld = new World(WorldSize.Small, WorldType.Verdant, Season.Spring, AxisTilt.Slight);
-    worldManager.Initialize(currentWorld);
+    worldManager.Initialize();
 
     // Round
-    roundManager.Initialize();
+    //roundManager.Initialize();
 
     // Scene
     //zoneCameraControls.Initialize();

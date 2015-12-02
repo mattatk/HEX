@@ -9,7 +9,7 @@ using LibNoise.Unity.Operator;
 //all together they are the dual polysphere
 //It's still a mystery to me as to why the pentagons seem to get made nicely and whether or not there's something wrong with them
 //@TODO: Solution for skewing or is it fine??
-public class SphereTile : PolySphere
+public class SphereTile
 {
   public bool colliding; //OnCollisionStay
   public TileType type;
@@ -19,12 +19,10 @@ public class SphereTile : PolySphere
   public List<Triangle> faceTris;
   public List<Triangle> sideTris;
   //Neighbor dual faces
-  public List<SphereTile> neighbors;
-  //GameObject stuff
-  public GameObject stuff;
+  //public List<SphereTile> neighbors;
   //Checking equality with the center vertex 
-  private Vector3 _center;
-  public Vector3 center{ get; set; }
+  private SerializableVector3 _center;
+  public SerializableVector3 center{ get; set; }
   //Scaling property
   private float _scale = 1;
   public float scale
@@ -45,8 +43,6 @@ public class SphereTile : PolySphere
         t.v3 *= scale;
         t.center.Normalize();
         t.center *= scale;
-        t.trans.position.Normalize();
-        t.trans.position *= scale;
       }
       foreach (Triangle t in sideTris)
       {
@@ -58,8 +54,6 @@ public class SphereTile : PolySphere
         t.v3 *= scale;
         t.center.Normalize();
         t.center *= scale;
-        t.trans.position.Normalize();
-        t.trans.position *= scale;
       }
     }
   }
@@ -70,13 +64,13 @@ public class SphereTile : PolySphere
   public SphereTile(Vector3 c)
   {
     center = c;
-    neighbors = new List<SphereTile>();
+    //neighbors = new List<SphereTile>();
     faceTris = new List<Triangle>();
     sideTris = new List<Triangle>();
     subTriangles = new List<Triangle>();
   }
   //Given the subdivided triangles, build the spheretile, which is made up of 12 triangles. 6 face, 6 side
-  public void Build(SimplexNoise simplex)
+  public void Build()
   {
     //simplex = new SimplexNoise(GameManager.gameSeed);
     List<Triangle> subCopies = new List<Triangle>(subTriangles);
@@ -95,11 +89,14 @@ public class SphereTile : PolySphere
 
     Triangle startingAt = subCopies[0];
     Triangle triCopy = new Triangle(subCopies[0].v1, subCopies[0].v2, subCopies[0].v3);
-    Transform triCopyTrans = triCopy.trans;
-    int z = 0;
+    Transform triCopyTrans = GameManager.myTrans;
+    triCopyTrans.rotation = Quaternion.identity;
+    triCopyTrans.position = triCopy.center;
+
     List<float> subs = new List<float>();
 
-    while (z < 6) //Make our 12 triangles (the pentagons apparently work) @TODO: optimize, scew
+
+    for (int z=0;z < 6;z++) //Make our 12 triangles (the pentagons apparently work) @TODO: optimize, scew
     {
       //Rotate our tester to where we want it, check for subTriangle here
       triCopyTrans.RotateAround(center, center, 60);
@@ -108,13 +105,13 @@ public class SphereTile : PolySphere
       subs.Clear();
       foreach (Triangle t in subCopies)
       {
-        subs.Add((t.center - triCopyTrans.position).sqrMagnitude);
+        subs.Add(((Vector3)t.center - triCopyTrans.position).sqrMagnitude);
       }
       subs.Sort();
       foreach (Triangle t in subCopies)
       {
         //If this center corresponds to the smallest value in subs
-        if ((t.center - triCopyTrans.position).sqrMagnitude == subs[0])
+        if (((Vector3)t.center - triCopyTrans.position).sqrMagnitude == subs[0])
         {
           Triangle faceTri = new Triangle(center, startingAt.center, t.center);
           Triangle sideTri = new Triangle(Vector3.zero, faceTri.v3, faceTri.v2);
@@ -123,27 +120,74 @@ public class SphereTile : PolySphere
           startingAt = t;
         }
       }
-      //here we are assuming that we'll always find a triangle in the previous loop
-      z++;
     }
   }
   
-
+  /*
   public void Smooth()
   {
     //Alright let's do some neighbor shit
     Vector3 average = Vector3.zero;
     foreach (SphereTile st in neighbors)
     {
-      average += st.center;
+      (Vector3)average += (Vector3)st.center;
     }
     average /= neighbors.Count;
     scale = average.magnitude;
   }
+  */
 
   void OnCollisionStay()
   {
     colliding = true;
+  }
+
+  public Hexagon ToHexagon()
+  {
+    return new Hexagon(faceTris[0].v1, faceTris[0].v2, faceTris[0].v3, faceTris[1].v3, faceTris[2].v3, faceTris[3].v3, faceTris[4].v3);
+    /*
+    Vector3 c = center;
+    List<Vector3> vertices = new List<Vector3>(), toAdd = new List<Vector3>();
+    float m = .3f;
+
+    vertices.Add(c);
+
+    foreach (Triangle t in faceTris)
+    {
+      toAdd.Clear();
+
+      foreach(Vector3 v in vertices)
+      {
+        // Is v1 not in our list of vertices?
+        if ((t.v1-v).sqrMagnitude > m && (t.v1-c).sqrMagnitude > m)
+        {
+          toAdd.Add(t.v1);
+        }
+        if ((t.v2-v).sqrMagnitude > m && (t.v2-c).sqrMagnitude > m)
+        {
+          toAdd.Add(t.v2);
+        }
+        if ((t.v3-v).sqrMagnitude > m && (t.v3-c).sqrMagnitude > m)
+        {
+          toAdd.Add(t.v3);
+        }
+      }
+
+      foreach (Vector3 v in toAdd)
+        vertices.Add(v);
+
+    }
+
+    if (vertices.Count != 7)
+    {
+      Debug.LogError("Incorrect number of hex vertices on conversion: "+vertices.Count);
+      return null;
+    }
+
+    Vector3[] vert = vertices.ToArray();
+
+    return new Hexagon(vert[1], vert[1], vert[2], vert[3], vert[4], vert[5], vert[6]);
+    */
   }
 }
 

@@ -62,7 +62,7 @@ public class ZoneRenderer : MonoBehaviour
 
         float texHeight = tileSet.texture.height;
         float texWidth = tileSet.texture.width;
-        float root3 = Mathf.Sqrt(3);
+        //float root3 = Mathf.Sqrt(3);
         float uvTileWidth = tileSet.tileWidth/texWidth;
         float uvTileHeight = tileSet.tileWidth/texHeight;
         float side = uvTileWidth/2;

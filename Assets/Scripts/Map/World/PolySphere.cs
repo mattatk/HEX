@@ -5,13 +5,17 @@ using System.Linq;
 
 public class PolySphere
 {
+  public int subdivisions = 3;
+  public int scale = 1;
+
   public List<Triangle> icosahedronTris;
   public List<List<Triangle>> subdividedTris;
   public List<Triangle> finalTris;    // The finest level of subdivided tris
+  public List<Hexagon> finalHexes, unitHexes;
+
   public List<SphereTile> sTiles;
   //public List<Triforce> triforces;
-  int scale, subdivisions;
-  public SimplexNoise simplex;
+  //public SimplexNoise simplex;
   public float randx;
   public float randy;
   public float randz;
@@ -32,14 +36,15 @@ public class PolySphere
     randx = Random.Range(0, 0.05f);
     randy = Random.Range(0, 0.1f);
     randz = Random.Range(0, 0.9f);
+    //Vector3 weights = Random.Vector3;
     weightx = Random.Range(0.5f, 0.7f);
     weighty = Random.Range(0.2f, 0.4f);
     weightz = Random.Range(0, 0.1f);
-    simplex = new SimplexNoise(GameManager.gameSeed);
+    //simplex = new SimplexNoise(GameManager.gameSeed);
      
     icosahedronTris = Icosahedron(scale);
  
-    SubdivideAndDuals(d, simplex);
+    SubdivideAndDuals(d);
 
   }
 
@@ -82,7 +87,7 @@ public class PolySphere
         Triangle left = new Triangle(v3, v2, tri.v3, tri, TriforcePosition.Left, subdivisions);
         nextTris.Add(left);
 
-        tri.AssignChildren(mid, top, left, right);
+        //tri.AssignChildren(mid, top, left, right);
       }
 
       // --- Number tris ---
@@ -92,6 +97,7 @@ public class PolySphere
         t.index = count;
         count++;
       }
+      /*
       //Set Neighbors
       foreach (Triangle tri in currentTris)
       {
@@ -100,6 +106,7 @@ public class PolySphere
         tri.childRight.AssignNeighbors(tri.NeighborOne(tri.childRight), tri.NeighborTwo(tri.childRight), tri.childMid);
         tri.childLeft.AssignNeighbors(tri.childMid, tri.NeighborOne(tri.childLeft), tri.NeighborTwo(tri.childLeft));
       }
+      */
 
       //Save our subdivided levels
       subdividedTris.Add(nextTris);
@@ -122,12 +129,11 @@ public class PolySphere
   // FUNCTIONS
 
 
-  void SubdivideAndDuals(int divisions, SimplexNoise simpl)
+  void SubdivideAndDuals(int divisions)
   {
     List<Triangle> currentTris;
     List<Triangle> nextTris = new List<Triangle>(icosahedronTris); //Original icosahedron
     List<List<Triangle>> subdividedTris = new List<List<Triangle>>();
-    List<Triangle> dualTris = new List<Triangle>();
 
     sTiles = new List<SphereTile>();
     
@@ -163,8 +169,9 @@ public class PolySphere
         Triangle left = new Triangle(v3, v2, tri.v3, tri, TriforcePosition.Left, subdivisions);
         nextTris.Add(left);
 
-        tri.AssignChildren(mid, top, left, right);
+        //tri.AssignChildren(mid, top, left, right);
       }
+      /*
       //Set Neighbors
       foreach (Triangle tri in currentTris)
       {
@@ -175,6 +182,7 @@ public class PolySphere
         tri.childLeft.AssignNeighbors(tri.childMid, tri.NeighborOne(tri.childLeft), tri.NeighborTwo(tri.childLeft));
 
       }
+      */
       //Save our subdivided levels
       subdividedTris.Add(nextTris); 
     }
@@ -198,15 +206,15 @@ public class PolySphere
         //Debug.Log((st.center - tri.v1).sqrMagnitude);
         //Debug.Log((st.center - tri.v2).sqrMagnitude);
         //Debug.Log((st.center - tri.v3).sqrMagnitude);
-        if (st.center == tri.v1)
+        if ((Vector3)st.center == (Vector3)tri.v1)
         {
           st1 = st;
         }
-        if (st.center == tri.v2)
+        if ((Vector3)st.center == (Vector3)tri.v2)
         {
           st2 = st;
         }
-        if (st.center == tri.v3)
+        if ((Vector3)st.center == (Vector3)tri.v3)
         {
           st3 = st;
         }
@@ -226,6 +234,8 @@ public class PolySphere
         st3 = new SphereTile(tri.v3);
         sTiles.Add(st3);
       }
+
+      /*
       //Add in the new neighbors from this triangle
       st1.neighbors.Add(st2);
       st1.neighbors.Add(st3);
@@ -235,6 +245,7 @@ public class PolySphere
 
       st3.neighbors.Add(st1);
       st3.neighbors.Add(st2);
+      */
 
       //Add this triangle as an inital triangle in each spheretile
       st1.subTriangles.Add(tri);
@@ -247,7 +258,7 @@ public class PolySphere
     foreach(SphereTile st in sTiles)
     {
       
-      st.Build(simpl);
+      st.Build();
       
       //st.ScalePerlin(2, 2, 33f, 1, 2.0f);
       //st.ScalePerlin(2, 2, 33f, 1, 2.0f);
@@ -266,8 +277,19 @@ public class PolySphere
       }
       */
     }
+    
+    // === Cache unit hexagons ===
+    unitHexes = new List<Hexagon>();
+    foreach (SphereTile st in sTiles)
+    {
+      unitHexes.Add(st.ToHexagon());
+    }
+
+    //******* Then, we can run scale functions on it to make individual worlds
     //Seed
-    ScaleTrigPerlin();
+    //ScaleTrigPerlin();
+    ScalePerlin(2, 2, 33f, 1, 2.0f);
+
     //Set water depth using average of all scales 
     float sAverage = 0;
     foreach (SphereTile st in sTiles)
@@ -276,6 +298,12 @@ public class PolySphere
     }
     sAverage /= sTiles.Count;
    
+   // === Cache final hexes ===
+   finalHexes = new List<Hexagon>();
+    foreach (SphereTile st in sTiles)
+    {
+      finalHexes.Add(st.ToHexagon());
+    }
 
     // --- Number tris ---
     int count = 0;
@@ -299,17 +327,16 @@ public class PolySphere
                             + weightx * Mathf.Cos(randx * st.center.x) + weighty * Mathf.Cos(randy * st.center.y) + weightz * Mathf.Cos(randz * st.center.z)))*100) / 100f;
     }
   }
-  /*  Haven't yet been converted to work in PolySphere.cs
+   // Haven't yet been converted to work in PolySphere.cs
   public void ScalePerlin(int octaves, int multiplier, float amplitude, int lacunarity, float persistence)
   {
-    float seedx = Random.Range(0, 1.0f);
-    float seedy = Random.Range(0, 1.0f);
-    //float height = Mathf.Abs(simplex.coherentNoise(center.x, center.y, center.z, octaves, multiplier, amplitude, lacunarity, persistence));
-    float height = Mathf.PerlinNoise((center.x / 10.0f + seedx) * lacunarity, (center.y / 10.0f + seedy) * lacunarity);
-    //scale *= 0.5f+((int)(height * octaves * multiplier) / ((amplitude) + (height * octaves * multiplier)));
-    scale *= 0.5f + ((int)(height * 10) / (10f));
+    foreach(SphereTile st in sTiles)
+    {
+      float height = Mathf.PerlinNoise((st.center.x / 10.0f + randx) * lacunarity, (st.center.y / 10.0f + randy) * lacunarity);
+      st.scale *= height;
+    }
   }
-
+  /*
   public void ScaleSimplex(SimplexNoise simplex, int octaves, int multiplier, float amplitude, int lacunarity, float persistence)
   {
     float seedx = Random.Range(-1.0f, 1.0f);
@@ -379,6 +406,7 @@ public class PolySphere
     output.Add(new Triangle(vertices[11], vertices[10], vertices[6]));  // 18
     output.Add(new Triangle(vertices[10], vertices[11], vertices[7]));  // 19
 
+    /*
     // Assign initial neighbors
     output[0].AssignNeighbors(output[1], output[4], output[18]);
     output[1].AssignNeighbors(output[2], output[0], output[10]);
@@ -400,6 +428,7 @@ public class PolySphere
     output[17].AssignNeighbors(output[16],output[6], output[18]);
     output[18].AssignNeighbors(output[17],output[19],output[0]);
     output[19].AssignNeighbors(output[18],output[5], output[10]);
+    */
 
     // --- Number tris ---
     int count = 0;

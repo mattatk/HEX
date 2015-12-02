@@ -43,3 +43,6 @@ Thumbs.db
 *.userprefs
 Temp/
 Library/
+Assets/Animations/Animations.meta
+
+Assets/Animations/AnimatorControllers.meta

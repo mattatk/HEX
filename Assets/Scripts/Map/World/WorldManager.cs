@@ -1,32 +1,38 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WorldManager : MonoBehaviour {
+public class WorldManager : MonoBehaviour
+{
+  // === Public ===
+  public World activeWorld;
+  public TileSet regularTileSet;
+  public float maxMag = 10;
+  // === Cache ===
+  WorldRenderer worldRenderer;
+  GameObject currentWorldObject;
+  Transform worldTrans;
+  //int layermask; @TODO: stuff
 
-    // === Public ===
-    public TileSet regularTileSet;
-    public float maxMag = 10;
-    // === Cache ===
-    WorldRenderer worldRenderer;
-    GameObject currentWorldObject;
-    int layermask;
+  public void Initialize()
+  {
+    activeWorld = LoadWorld();
+    worldRenderer = GetComponent<WorldRenderer>();
 
-    public void Initialize(World z)
+     currentWorldObject = new GameObject("World");
+     worldTrans = currentWorldObject.transform;
+
+   //currentWorld = new World(WorldSize.Small, WorldType.Verdant, Season.Spring, AxisTilt.Slight);
+
+    foreach (GameObject g in worldRenderer.RenderWorld(activeWorld, regularTileSet))
     {
-        worldRenderer = GetComponent<WorldRenderer>();
-
-        currentWorldObject = worldRenderer.RenderWorld(z, regularTileSet);
-
-        layermask = 1 << 8;   // Layer 8 is set up as "Chunk" in the Tags & Layers manager
+      g.transform.parent = worldTrans;
     }
 
-    // Use this for initialization
-    void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    //layermask = 1 << 8;   // Layer 8 is set up as "Chunk" in the Tags & Layers manager
+  }
+
+  World LoadWorld()
+  {
+    return BinaryHandler.ReadData<World>(World.cachePath);
+  }
 }

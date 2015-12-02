@@ -12,7 +12,7 @@ public class Zone {
   public float waterHeight;
   public int landArea;
   public static float sideLength;
-  SimplexNoise simplex;
+  //SimplexNoise simplex;
 
   ZoneRelationship[] neighbors;
 
@@ -29,12 +29,7 @@ public class Zone {
     width = 128;
     waterHeight = .5f;
     tiles = new Tile[width, width];
-    simplex = new SimplexNoise(GameManager.gameSeed);
-    
-    
-
-    int randX = Random.Range(-99999, 99999);
-    int randY = Random.Range(-99999, 99999);
+    //simplex = new SimplexNoise(GameManager.gameSeed);
 
     float maxHeight = 10;   // Should be an int
     float startingHeight = Random.Range(maxHeight * .1f, maxHeight * .5f);
@@ -79,10 +74,10 @@ public class Zone {
     width = w;
     waterHeight = .5f;
     tiles = new Tile[width, width];
-    simplex = new SimplexNoise(GameManager.gameSeed);
+    //simplex = new SimplexNoise(GameManager.gameSeed);
 
-    int randX = Random.Range(-99999,99999);
-    int randY = Random.Range(-99999,99999);
+    //int randX = Random.Range(-99999,99999);
+    //int randY = Random.Range(-99999,99999);
     
     float maxHeight = 10;   // Should be an int
     float startingHeight = Random.Range(maxHeight*.1f,maxHeight*.5f);
@@ -236,6 +231,8 @@ public class Zone {
   {
     float seedx = Random.Range(-1.0f,1.0f);
     float seedy = Random.Range(-1.0f,1.0f);
+    float num = Random.Range(1.5f, 3f);
+    float den = Random.Range(2f, 3f);
     float wi = width;
 
     for (int x=0; x<wi; x++)
@@ -248,11 +245,11 @@ public class Zone {
         float height = Mathf.PerlinNoise( (x/wi+seedx)*lacunarity, (y/wi+seedy)*lacunarity);
         height -= .5f;    // So that subtractions can happen
 
-        tiles[x,y].height += (int)(height * scale * 2f) / 2.0f;
+        tiles[x,y].height += (int)(height * scale * num) / den;
       }
     }
   }
-
+  /*
   void AddSimplexHeight(float scale, int lacunarity)
   {
     float seedx = Random.Range(-1.0f,1.0f);
@@ -272,7 +269,7 @@ public class Zone {
       }
     }
   }
-
+  */
   public void SpreadGround(int iterations, TileType groundType)
   { 
     Tile[,] oldTiles = new Tile[width,width];
@@ -435,9 +432,8 @@ public class Zone {
     //needs to make the continents between borders and put each land segment into its own array, in order to compare size later and keep the biggest one or few
     public void FillBorders()
     {
-        int i = 0;
         //Get an empty tile array which we will populate the next array in continents with
-        Tile[,] tilesToSave = new Tile[width, width];
+        //Tile[,] tilesToSave = new Tile[width, width];
        
         for (int x = 0; x < width; x++)
         {
