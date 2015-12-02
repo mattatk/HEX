@@ -2,6 +2,7 @@
 using System.Collections;
 
 [System.Serializable]
-public class Unit : Actor
+public class Unit
 {
+
 }

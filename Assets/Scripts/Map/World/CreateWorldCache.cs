@@ -5,10 +5,11 @@ public class CreateWorldCache : MonoBehaviour {
 
   public int scale = 1, subdivisions = 3;
 
-	public void BuildCache  () {
+	public void BuildCache  (World world) 
+  {
+    world.PrepForCache(scale, subdivisions);
+
     
-    PolySphere sphere = new PolySphere(scale,subdivisions);
-    World world = new World(sphere);
 
     try
     {

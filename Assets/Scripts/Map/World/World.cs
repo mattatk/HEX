@@ -26,7 +26,15 @@ public class World
 
   }
 
-  public World(PolySphere s)  // Executed by the cacher
+  public World(WorldSize s, WorldType t, Season se, AxisTilt at)
+  {
+    size = s;
+    type = t;
+    season = se;
+    tilt = at;
+  }
+
+  public void AssignHeights(PolySphere s)  // Executed by the cacher
   {
     tiles = new List<HexTile>();
 
@@ -36,11 +44,14 @@ public class World
     }
   }
 
-  public World(WorldSize s, WorldType t, Season se, AxisTilt at)
+  public void PrepForCache(int scale, int subdivisions)
   {
-    size = s;
-    type = t;
-    season = se;
-    tilt = at;
+    if (tiles == null || tiles.Count == 0)
+    {
+      PolySphere sphere = new PolySphere(scale,subdivisions);
+      AssignHeights(sphere);
+    }
+    else
+      Debug.Log("tiles not null during cache prep");
   }
 }

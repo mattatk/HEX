@@ -18,7 +18,7 @@ public class RoundManager : MonoBehaviour
 
   void SpawnUnits()
   {
-    actorSpawner.SpawnUnit(unitToSpawn, new IntCoord(2,2));
+    actorSpawner.SpawnUnit(null, unitToSpawn, new IntCoord(2,2));
   }
 
   public void UpdateRound()
@@ -42,7 +42,7 @@ public class RoundManager : MonoBehaviour
       if (hexCoordSelected.x == -1)
         return;
 
-      actorSpawner.SpawnUnit(unitToSpawn, hexCoordSelected);
+      actorSpawner.SpawnUnit(null, unitToSpawn, hexCoordSelected);
 
       Debug.Log("Ray at "+hexCoordSelected.x+","+hexCoordSelected.y);
     }

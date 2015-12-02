@@ -1,27 +1,94 @@
-﻿/* AIN'T WORKIN BREH
-  
+﻿/*
+ * Copyright (c) 2015 Colin James Currie.
+ * All rights reserved.
+ * Contact: cj@cjcurrie.net
+ */
+
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Networking.NetworkSystem;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
-public class UNetInterface : NetworkManager 
+public class UNetInterface : NetworkManager
 {
-  string gameName;
+  const string gameID = "369Hex963";
+
+  static string gameName;
+  public static UNetInterface instance;
+  static NetworkClient client;
+  //public static List<NetworkBus> clientBuses;
+  public static List<NetworkConnection> clientConnections;
+
+  static NetworkClient myClient;
+
+  short playerID;
+
+  public void Initialize ()
+  {
+    instance = this;
+    //clientBuses = new List<NetworkBus>();
+    clientConnections = new List<NetworkConnection>();
+  }
+
+  public void UnInitialize()
+  {
+    
+  }
+
+  public static void HostP2PServer(string gn)
+  {
+    gameName = gn;
+
+    client = instance.StartHost();
+    Network.InitializeServer(32, 1337, !Network.HavePublicAddress());
+    MasterServer.RegisterHost(gameID, gameName);
+  }
+
+  public static void JoinP2PServer(string gn)
+  {
+    gameName = gn;
+
+    myClient = instance.StartClient();
+    myClient.RegisterHandler(MyMsgType.UpdateSeed, OnSeedReceived);
+
+    MasterServer.RequestHostList(gameID);
+  }
 
   // === Unity Callbacks ===
-  // Called only on a server
-  void OnServerInitialized(){}
+  void OnServerInitialized()
+  {
+    ChatUI.SystemMessage("You are now hosting a public room called "+gameName);
+    RegisterCallbacks();
 
-  // Called on both client and server when connected to a server
-  void OnConnectedToServer(){}
+    //GameController.OnNetworkInitialized();    This should be here but must be on the player instead
+  }
 
-  // Called on server when a client connects
-  public override void OnServerConnect(NetworkConnection conn){}
+  void OnConnectedToServer()
+  {
+    RegisterCallbacks();
+    //GameController.networkBus.CmdSetUsername(Settings.username);
+    //GameController.networkBus.CmdAskForSeed();
 
-  // Called on the server when a clients adds a player obj
-  public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId){}
+    WelcomeMessages();
+  }
 
-  // Called on both client and server when the UNet master server makes contact
+  public override void OnServerConnect(NetworkConnection conn)
+  {
+    //conn.Send(MyMsgType.UpdateSeed, new StringMessage(GameController.seed));
+    base.OnServerConnect(conn);
+  }
+
+  public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+  {
+    GameObject player = (GameObject)Instantiate(playerPrefab, Vector3.up*15, Quaternion.identity);
+    ClientHub bus = player.GetComponent<ClientHub>();
+
+    NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+  }
+
   void OnMasterServerEvent(MasterServerEvent msEvent)
   {
     switch(msEvent)
@@ -42,11 +109,33 @@ public class UNetInterface : NetworkManager
 
         if (!found)
         {
-          MainUI.SystemMessage("No game room of name "+gameName+" was found.");
+          ChatUI.SystemMessage("No game room of name "+gameName+" was found.");
           gameName = "";
         }
       break;
     }
   }
+  // === /Unity Callbacks ===
+  
+  void WelcomeMessages()
+  {
+    ChatUI.SystemMessage("You have joined the public game "+gameName);
+  }
+
+  void RegisterCallbacks()
+  {
+    NetworkServer.RegisterHandler(MyMsgType.UpdateSeed, OnSeedReceived);
+
+    //NetworkServer.Instance.Listen(7070);
+    //NetworkServer.Instance.RegisterHandler(MsgType.SYSTEM_CONNECT, OnConnected);
+  }
+
+  static void OnSeedReceived(NetworkMessage netMsg)
+  {
+    //GameController.OnSeedReceived(netMsg.ReadMessage<StringMessage>().value);
+  }
+  
+  public void OnMyApplicationQuit()
+  {
+  }
 }
-*/

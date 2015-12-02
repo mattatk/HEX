@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(WorldRenderer))]
 public class WorldManager : MonoBehaviour
 {
   // === Public ===

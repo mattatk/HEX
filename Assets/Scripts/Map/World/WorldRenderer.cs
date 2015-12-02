@@ -4,12 +4,11 @@ using System.Collections.Generic;
 
 public class WorldRenderer : MonoBehaviour
 {
-  public int i;
   public GameObject worldPrefab, textMeshPrefab;
   //Zone currentZone;
-  public bool controlx;
-  public bool controly;
-  public bool controlz;
+  bool controlx;
+  bool controly;
+  bool controlz;
 
   PolySphere activePolySphere;
 
@@ -29,6 +28,7 @@ public class WorldRenderer : MonoBehaviour
 
   public GameObject RecursiveRender(World world, TileSet tileSet, bool cx, bool cy, bool cz, int it)
   {
+    Debug.Log(world.tiles.Count);
     //Debug.Log("ITERATION "+it);
     //currentZone = GameManager.currentZone;
     GameObject output = (GameObject)Instantiate(worldPrefab, Vector3.zero, Quaternion.identity);

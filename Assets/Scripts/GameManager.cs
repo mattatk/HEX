@@ -10,50 +10,47 @@ using System.Collections;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
-public enum GameState {None, Caching, MainMenu, GalaxyMap, WorldMap, ZoneMap};
+public enum GameState {None, Caching, MainMenu, WorldMap, ZoneMap, WorldDuel};
 
 public class GameManager : MonoBehaviour
 {
-  // === Public Cache ===
+  // === Const & Inspector Cache ===
   public GameState beginningState = GameState.WorldMap;
-  public static string gameSeed = "sixtynine";
+  public const string gameSeed = "sixtynine";
 
-  // === Public Static Cache ===
+  // === Static Cache ===
   static GameState state;
   public static Transform myTrans;
   public static GameState State {get{return state;} set{}}
+  public static Camera cam;
+  public static MainUI mainUI;
 
   //For World/Zone
   public static World currentWorld;
+  public static GameObject worldManagerObj;
   public static WorldManager worldManager;
+  static CreateWorldCache worldCacher;
 
   public static Zone currentZone;
   public static ZoneRenderer zoneRenderer;
   public static List<GameObject> currentZoneObjects;
-
-  public static Camera cam;
   public static ZoneViewCamera zoneCameraControls;
   public static ZoneManager zoneManager;
-  public static MainUI mainUI;
-  public static RoundManager roundManager;
 
-  // === Private Cache ===
-  static CreateWorldCache worldCacher;
+  // For combat
+  public static GameObject combatManagerObj;
+  public static CombatManager combatManager;
+  public static RoundManager roundManager;
+  
 
   void Awake ()
   {
     myTrans = transform;
-    cam =                 Camera.main;
-    zoneManager =         GetComponent<ZoneManager>();
-    zoneRenderer =        GetComponent<ZoneRenderer>();
+    cam = Camera.main;
     if (Camera.main)
-      zoneCameraControls =  Camera.main.GetComponent<ZoneViewCamera>();
-    mainUI =              GetComponent<MainUI>();
-    roundManager =        GetComponent<RoundManager>();
+      zoneCameraControls = Camera.main.GetComponent<ZoneViewCamera>();
 
-
-    // water = (GameObject)Instantiate(water,new Vector3(0,(float)Random.Range(4,5),0),Quaternion.identity);
-    currentZone = new Zone(128); //so Hex doesn't null ref currentZone
+    currentZone = new Zone(128); // Required so Hex doesn't null ref currentZone
     Hex.Initialize();
 
     // Ideally, the only place state is manually set.
@@ -61,33 +58,42 @@ public class GameManager : MonoBehaviour
 
     switch (state)
     {
-      case GameState.WorldMap:
-        BuildWorld();
+      case GameState.WorldDuel:
+        InitializeWorld();
+
+        combatManagerObj = GameObject.FindWithTag("Combat Manager");
+        combatManager = combatManagerObj.GetComponent<CombatManager>();
+        combatManager.Initialize();
+        combatManager.BeginDuel();
       break;
+
+      case GameState.WorldMap:
+        InitializeWorld();
+      break;
+
       case GameState.ZoneMap:
         BuildZone();
       break;
+
       case GameState.Caching:
-        worldCacher = GetComponent<CreateWorldCache>();
-        worldCacher.BuildCache();
+        worldManagerObj = GameObject.FindWithTag("World Manager");
+        worldManager = worldManagerObj.GetComponent<WorldManager>();
+        worldCacher = worldManagerObj.GetComponent<CreateWorldCache>();
+        worldCacher.BuildCache(worldManager.activeWorld);
       break;
+
       default:
         Debug.LogError("Please set a state in GameManager.beginningState before playing.");
       break;
     }
   }
 
-  void BuildWorld()
+  void InitializeWorld()
   {
-    worldManager = GetComponent<WorldManager>();
+    worldManagerObj = GameObject.FindWithTag("World Manager");
+    worldManager = worldManagerObj.GetComponent<WorldManager>();
     worldManager.Initialize();
-
-    // Round
-    //roundManager.Initialize();
-
-    // Scene
-    //zoneCameraControls.Initialize();
-    }
+  }
 
   void BuildZone()
   {
