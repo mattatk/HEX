@@ -28,7 +28,6 @@ public class WorldRenderer : MonoBehaviour
 
   public GameObject RecursiveRender(World world, TileSet tileSet, bool cx, bool cy, bool cz, int it)
   {
-    Debug.Log(world.tiles.Count);
     //Debug.Log("ITERATION "+it);
     //currentZone = GameManager.currentZone;
     GameObject output = (GameObject)Instantiate(worldPrefab, Vector3.zero, Quaternion.identity);
