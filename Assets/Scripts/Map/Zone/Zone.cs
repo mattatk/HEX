@@ -407,12 +407,12 @@ public class Zone {
                 // count empty neighbors (6)
               Vector2 v = new Vector2(x, y);
                 neighborCount = 0;
-                Vector2 e = Hex.Neighbor(v, Direction.East),
-                        ne = Hex.Neighbor(v, Direction.NorthEast),
-                        se = Hex.Neighbor(v, Direction.SouthEast),
-                        w = Hex.Neighbor(v, Direction.West),
-                        nw = Hex.Neighbor(v, Direction.NorthWest),
-                        sw = Hex.Neighbor(v, Direction.SouthWest); 
+                Vector2 e = Hex.Neighbor(v, Direction.X),
+                        ne = Hex.Neighbor(v, Direction.XY),
+                        se = Hex.Neighbor(v, Direction.NegY),
+                        w = Hex.Neighbor(v, Direction.NegX),
+                        nw = Hex.Neighbor(v, Direction.Y),
+                        sw = Hex.Neighbor(v, Direction.NegXY); 
 
                 if (tiles[(int)e.x, (int)e.y].type == TileType.None || tiles[(int)ne.x, (int)ne.y].type == TileType.None ||
                     tiles[(int)se.x, (int)se.y].type == TileType.None || tiles[(int)w.x, (int)w.y].type == TileType.None ||

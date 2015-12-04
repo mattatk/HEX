@@ -29,7 +29,6 @@ public class PolySphere
     origin = o;
     scale = s;
     subdivisions = d;
-    //Subdivide(d);
     //For seeding dual centers
     amplitude = Random.Range(0.01f, 0.1f);
     lacunarity = Random.Range(0.2f, 2f);
@@ -44,86 +43,6 @@ public class PolySphere
     SubdivideAndDuals();
 
   }
-
-  void Subdivide(int divisions)
-  {
-    List<Triangle> currentTris;
-    List<Triangle> nextTris = new List<Triangle>(icosahedronTris);
-    //List<Triforce> triforces;
-    subdividedTris = new List<List<Triangle>>();
-
-    // Subdivide icosahedron
-    for (int i = 0; i < divisions; i++)
-    {
-      currentTris = new List<Triangle>(nextTris);
-      nextTris = new List<Triangle>();
-      //triforces = new List<Triforce>();
-
-      foreach (Triangle tri in currentTris)
-      {
-        //Bisect
-        Vector3 v1 = Vector3.Lerp(tri.v1, tri.v2, .5f);
-        Vector3 v2 = Vector3.Lerp(tri.v2, tri.v3, .5f);
-        Vector3 v3 = Vector3.Lerp(tri.v3, tri.v1, .5f);
-
-        //Project onto sphere
-        v1 *= (float)(1.902084 / v1.magnitude) * scale; //golden rectangle sphere radius 1.902084, as calculated by unity
-        v2 *= (float)(1.902084 / v2.magnitude) * scale;
-        v3 *= (float)(1.902084 / v3.magnitude) * scale;
-
-        //Add the four new triangles
-        Triangle mid = new Triangle(v1, v2, v3, tri, TriforcePosition.Mid, subdivisions);
-        nextTris.Add(mid);   // Center of triforce
-
-        Triangle top = new Triangle(tri.v1, v1, v3, tri, TriforcePosition.Top, subdivisions);
-        nextTris.Add(top);
-
-        Triangle right = new Triangle(v1, tri.v2, v2, tri, TriforcePosition.Right, subdivisions);
-        nextTris.Add(right);
-
-        Triangle left = new Triangle(v3, v2, tri.v3, tri, TriforcePosition.Left, subdivisions);
-        nextTris.Add(left);
-
-        //tri.AssignChildren(mid, top, left, right);
-      }
-
-      // --- Number tris ---
-      int count = 0;
-      foreach (Triangle t in nextTris)
-      {
-        t.index = count;
-        count++;
-      }
-      /*
-      //Set Neighbors
-      foreach (Triangle tri in currentTris)
-      {
-        tri.childMid.AssignNeighbors(tri.childTop, tri.childRight, tri.childLeft);
-        tri.childTop.AssignNeighbors(tri.NeighborOne(tri.childTop), tri.childMid, tri.NeighborTwo(tri.childTop));
-        tri.childRight.AssignNeighbors(tri.NeighborOne(tri.childRight), tri.NeighborTwo(tri.childRight), tri.childMid);
-        tri.childLeft.AssignNeighbors(tri.childMid, tri.NeighborOne(tri.childLeft), tri.NeighborTwo(tri.childLeft));
-      }
-      */
-
-      //Save our subdivided levels
-      subdividedTris.Add(nextTris);
-    }
-
-    finalTris = nextTris;
-
-    //finalTris.RemoveAt(finalTris[0].parent.childTop.top.index);
-    //finalTris.RemoveAt(finalTris[0].parent.childRight.top.index);
-    //finalTris.RemoveAt(finalTris[0].parent.childLeft.top.index);
-  }
-
-
-  // BARRIER
-  // OF
-  // USEFULNESS
-  // BETWEEN
-  // TWO
-  // SIMILAR
-  // FUNCTIONS
 
 
   void SubdivideAndDuals()
@@ -166,27 +85,23 @@ public class PolySphere
         Triangle left = new Triangle(v3, v2, tri.v3, tri, TriforcePosition.Left, subdivisions);
         nextTris.Add(left);
 
-        //tri.AssignChildren(mid, top, left, right);
+        tri.AssignChildren(mid, top, left, right);
       }
-      /*
+      
       //Set Neighbors
       foreach (Triangle tri in currentTris)
       {
-
         tri.childMid.AssignNeighbors(tri.childTop, tri.childRight, tri.childLeft);
         tri.childTop.AssignNeighbors(tri.NeighborOne(tri.childTop), tri.childMid, tri.NeighborTwo(tri.childTop));
         tri.childRight.AssignNeighbors(tri.NeighborOne(tri.childRight), tri.NeighborTwo(tri.childRight), tri.childMid);
         tri.childLeft.AssignNeighbors(tri.childMid, tri.NeighborOne(tri.childLeft), tri.NeighborTwo(tri.childLeft));
 
       }
-      */
+      
       //Save our subdivided levels
       subdividedTris.Add(nextTris); 
     }
-    //Now, after subdivision, create the dual
-    //Debug.Log(((nextTris[0].center + nextTris[12].center) / 2).magnitude);
-    //Debug.Log(((nextTris[3].center + nextTris[14].center) / 2).magnitude);
-    //Debug.Log(((nextTris[2].center + nextTris[13].center) / 2).magnitude);
+
     
     //Create SphereTiles, give them neighbors
     
@@ -200,9 +115,6 @@ public class PolySphere
       //Create empty SphereTiles, or, if we've already created a SphereTile at this point just reference it
       foreach (SphereTile st in sTiles)
       {
-        //Debug.Log((st.center - tri.v1).sqrMagnitude);
-        //Debug.Log((st.center - tri.v2).sqrMagnitude);
-        //Debug.Log((st.center - tri.v3).sqrMagnitude);
         if ((Vector3)st.center == (Vector3)tri.v1)
         {
           st1 = st;
@@ -232,17 +144,16 @@ public class PolySphere
         sTiles.Add(st3);
       }
 
-      /*
+
       //Add in the new neighbors from this triangle
-      st1.neighbors.Add(st2);
-      st1.neighbors.Add(st3);
+        st1.neighborList.Add(st2);
+        st1.neighborList.Add(st3);
 
-      st2.neighbors.Add(st1);
-      st2.neighbors.Add(st3);
+        st2.neighborList.Add(st1);
+        st2.neighborList.Add(st3);
 
-      st3.neighbors.Add(st1);
-      st3.neighbors.Add(st2);
-      */
+        st3.neighborList.Add(st1);
+        st3.neighborList.Add(st2);
 
       //Add this triangle as an inital triangle in each spheretile
       st1.subTriangles.Add(tri);
@@ -251,23 +162,40 @@ public class PolySphere
     }
     //dualCenters = dualCenters.Distinct().ToList();
     
+    // --- Number sphere tiles ---
+    int count = 0;
     //Build the SphereTiles!
     foreach(SphereTile st in sTiles)
     {
-      st.Build();
+      st.index = count;
+      count++;
+
       st.scale *= scale;
+      st.Build();
     }
     
-    // === Cache unit hexagons ===
     unitHexes = new List<Hexagon>();
+    foreach (SphereTile st in sTiles)
+    {
+      // Cache neighbors in list
+      foreach (SphereTile t in st.neighborList)
+      {
+        if (!st.neighborDict.ContainsKey(t.index))
+          st.neighborDict.Add(t.index, t);
+      }
+    }
+
+    // === Cache unit hexagons ===
     foreach (SphereTile st in sTiles)
     {
       unitHexes.Add(st.ToHexagon());
     }
 
-    //******* Then, we can run scale functions on it to make individual worlds
-    //Seed
-    //ScaleTrigPerlin();
+    // === Assign neighbors to unix hexes ===
+    TraverseAndAssignNeighbors(unitHexes, sTiles);
+
+    // === Scale with height function ===
+    // @TODO: seed
     ScaleSimplex(PolySphere.simplex, octaves, multiplier, amplitude, lacunarity, persistence);
 
     //Set water depth using average of all scales 
@@ -277,47 +205,170 @@ public class PolySphere
       sAverage += st.scale;
     }
     sAverage /= sTiles.Count;
-   
-   // === Cache final hexes ===
-   finalHexes = new List<Hexagon>();
-    foreach (SphereTile st in sTiles)
-    {
-      finalHexes.Add(st.ToHexagon());
-    }
 
     // --- Number tris ---
-    int count = 0;
+    // Is this section still needed?
+    count = 0;
     foreach (Triangle t in nextTris)
     {
       t.index = count;
       count++;
     }
-    //finalTris = dualTris;
-  }
-  /*  // Haven't yet been converted to work in PolySphere.cs
-  public void ScaleTrigPerlin() //@TODO: think about this more
-  {
-    //float seed = Random.Range(0.1f,0.9f);
-    //float perlin = Mathf.PerlinNoise((center.x / 10.0f + seedx) * lacunarity, (center.y / 10.0f + seedy) * lacunarity);
-    //scale *= (Mathf.Pow(seedy*Mathf.Sin((center.x + perlin)*seedx), 2) + Mathf.Pow(seedy*Mathf.Sin((center.y + perlin)*seedx), 2) + seedy*Mathf.Pow(Mathf.Sin((center.z+perlin)*seedx), 2));
-    //math.sin(0.2 + (i * 0.08) * math.cos(0.4 + i * 0.3)
+
+    // === Cache FINAL hex tiles ===
+    finalHexes = new List<Hexagon>();
     foreach (SphereTile st in sTiles)
     {
-      st.scale *= 1 + (int)(Mathf.Abs((weightx * Mathf.Sin(randx * st.center.x) + weighty * Mathf.Sin(randy * st.center.y) + weightz * Mathf.Sin(randz * st.center.z)
-                            + weightx * Mathf.Cos(randx * st.center.x) + weighty * Mathf.Cos(randy * st.center.y) + weightz * Mathf.Cos(randz * st.center.z)))*100) / 100f;
+      finalHexes.Add(st.ToHexagon());
     }
+
+    //finalTris = dualTris;
   }
-  
-  
-  public void ScalePerlin(int octaves, int multiplier, float amplitude, int lacunarity, float persistence)
+
+  void TraverseAndAssignNeighbors(List<Hexagon> hexes, List<SphereTile> sTiles)
   {
-    foreach(SphereTile st in sTiles)
+    // Starting hex 0
+    hexes[0].neighbors[(int)Direction.Y] = 1;
+    hexes[0].neighbors[(int)Direction.XY] = 2;
+    hexes[0].neighbors[(int)Direction.X] = 3;
+    hexes[0].neighbors[(int)Direction.NegY] = 4;
+    hexes[0].neighbors[(int)Direction.NegXY] = 5;
+    hexes[0].neighbors[(int)Direction.NegX] = 6;
+
+
+    int currentHex = 1, startingHex = 0, lastHex = 0, currentWinner;
+
+    // --- Traverse +Y ---
+    int breaker = 1000;
+    startingHex = currentHex;
+
+    do
     {
-      float height = Mathf.PerlinNoise((st.center.x / 10.0f + randx) * lacunarity, (st.center.y / 10.0f + randy) * lacunarity);
-      st.scale *= height;
+      SerializableVector3 currentCenter = hexes[currentHex].center;
+      SerializableVector3 currentYDirection = hexes[lastHex].center - currentCenter;
+      float winningAngle = 190, angle=9999;
+      int winningNeighborIndex = 0;
+
+      List<SphereTile> potentialNeighbors = sTiles[currentHex].neighborDict.Values.ToList();
+
+      for (int i=0; i<potentialNeighbors.Count; i++)
+      {
+        angle = Vector3.Angle(currentCenter-potentialNeighbors[i].center, currentYDirection);
+
+        if (angle < winningAngle)
+        {
+          winningAngle = angle;
+          winningNeighborIndex = i;
+        }
+      }
+
+      int nextIndex = potentialNeighbors[winningNeighborIndex].index;
+
+      hexes[currentHex].neighbors[(int)Direction.Y] = nextIndex;
+      hexes[currentHex].neighbors[(int)Direction.NegY] = lastHex;
+
+      // Move to next y
+      lastHex = currentHex;
+      currentHex = nextIndex;
+      breaker--;
     }
+    while (currentHex != startingHex && breaker > 0);
+    if (breaker < 1)
+    {
+      Debug.LogError("No end was found to directional band during +Y neighbor traversal (Hit breaker limit).");
+    }
+
+
+    // --- Traverse +X+Y ---
+    breaker = 1000;
+    startingHex = currentHex;
+    currentHex = 2;  // @TODO
+    startingHex = 0;
+    lastHex = 0;
+
+    do
+    {
+      SerializableVector3 currentCenter = hexes[currentHex].center;
+      SerializableVector3 currentXYDirection = hexes[lastHex].center - currentCenter;
+      float winningAngle = 190, angle=9999;
+      int winningNeighborIndex = 0;
+
+      List<SphereTile> potentialNeighbors = sTiles[currentHex].neighborDict.Values.ToList();
+
+      for (int i=0; i<potentialNeighbors.Count; i++)
+      {
+        angle = Vector3.Angle(currentCenter-potentialNeighbors[i].center, currentXYDirection);
+
+        if (angle < winningAngle)
+        {
+          winningAngle = angle;
+          winningNeighborIndex = i;
+        }
+      }
+
+      int nextIndex = potentialNeighbors[winningNeighborIndex].index;
+
+      hexes[currentHex].neighbors[(int)Direction.XY] = nextIndex;
+      hexes[currentHex].neighbors[(int)Direction.NegXY] = lastHex;
+
+      // Move to next xy
+      lastHex = currentHex;
+      currentHex = nextIndex;
+      breaker--;
+    }
+    while (currentHex != startingHex && breaker > 0);
+    if (breaker < 1)
+    {
+      Debug.LogError("No end was found to directional band during neighbor +X+Y traversal (Hit breaker limit).");
+    }
+
+    /*
+    // --- Traverse +X (Begin at index 1 this time) ---
+    breaker = 1000;
+    startingHex = hexes[0].neighbors[(int)Direction.NegY];
+    currentHex = 13;
+    lastHex = startingHex;
+
+    do
+    {
+      SerializableVector3 currentCenter = hexes[currentHex].center;
+      float winningAngle = 190, angle=9999;
+      int winningNeighborIndex = 0;
+
+      List<SphereTile> potentialNeighbors = sTiles[currentHex].neighborDict.Values.ToList();
+
+      SerializableVector3 currentXDirection = hexes[hexes[0].neighbors[(int)Direction.X]].center - hexes[0].center;
+
+      for (int i=0; i<potentialNeighbors.Count; i++)
+      {
+        angle = Vector3.Angle(currentCenter-potentialNeighbors[i].center, currentXDirection);
+
+        if (angle < winningAngle)
+        {
+          winningAngle = angle;
+          winningNeighborIndex = i;
+        }
+      }
+
+      int nextIndex = potentialNeighbors[winningNeighborIndex].index;
+
+      hexes[currentHex].neighbors[(int)Direction.X] = nextIndex;
+      hexes[currentHex].neighbors[(int)Direction.NegX] = lastHex;
+
+      // Move to next y
+      lastHex = currentHex;
+      currentHex = nextIndex;
+      currentXDirection = hexes[lastHex].center - currentCenter;
+      breaker--;
+    }
+    while (currentHex != startingHex && breaker > 0);
+    if (breaker < 1)
+    {
+      Debug.LogError("No end was found to directional band during neighbor +X+Y traversal (Hit breaker limit).");
+    }
+    */
+    
   }
-  */
 
   public void ScaleSimplex(SimplexNoise simplex, int octaves, int multiplier, float amplitude, float lacunarity, float persistence)
   {
@@ -325,7 +376,6 @@ public class PolySphere
     {
       float height = Mathf.Abs(simplex.coherentNoise(st.center.x, st.center.y, st.center.z, octaves, multiplier, amplitude, lacunarity, persistence));
       st.scale *= 24*(1 + height*100);
-      Debug.Log(height);
     }
   }
   
@@ -389,7 +439,6 @@ public class PolySphere
     output.Add(new Triangle(vertices[11], vertices[10], vertices[6]));  // 18
     output.Add(new Triangle(vertices[10], vertices[11], vertices[7]));  // 19
 
-    /*
     // Assign initial neighbors
     output[0].AssignNeighbors(output[1], output[4], output[18]);
     output[1].AssignNeighbors(output[2], output[0], output[10]);
@@ -411,7 +460,6 @@ public class PolySphere
     output[17].AssignNeighbors(output[16],output[6], output[18]);
     output[18].AssignNeighbors(output[17],output[19],output[0]);
     output[19].AssignNeighbors(output[18],output[5], output[10]);
-    */
 
     // --- Number tris ---
     int count = 0;

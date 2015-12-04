@@ -5,12 +5,13 @@ using LibNoise.Unity;
 using LibNoise.Unity.Generator;
 using LibNoise.Unity.Operator;
 
-//Each SphereTile is a piece of the dual polysphere,
-//all together they are the dual polysphere
-//It's still a mystery to me as to why the pentagons seem to get made nicely and whether or not there's something wrong with them
-//@TODO: Solution for skewing or is it fine??
 public class SphereTile
 {
+  public int index;    // The index of the tile in our map. Translates into HexTile.id [set by PolySphere]
+  public int[] neighbors;   // Indexes of the surrounding sphere tiles in our map [set by PolySphere] in array form for serialization
+  public Dictionary<int, SphereTile> neighborDict;    // A list of unique neighbors
+  public List<SphereTile> neighborList;   // This is the first raw list, which will contain duplicates
+
   public bool colliding; //OnCollisionStay
   public TileType type;
   //The inital triangles from the subdivided polysphere which we will use to build the spheretile
@@ -18,8 +19,6 @@ public class SphereTile
   //The triangles that make up this piece of the entire dual polygon
   public List<Triangle> faceTris;
   public List<Triangle> sideTris;
-  //Neighbor dual faces
-  //public List<SphereTile> neighbors;
   //Checking equality with the center vertex 
   private SerializableVector3 _center;
   public SerializableVector3 center{ get; set; }
@@ -58,16 +57,17 @@ public class SphereTile
     }
   }
 
-  
-
   //Unit SphereTile
   public SphereTile(Vector3 c)
   {
     center = c;
-    //neighbors = new List<SphereTile>();
     faceTris = new List<Triangle>();
+    neighbors = new int[7];
+    neighborDict = new Dictionary<int, SphereTile>();
+    neighborList = new List<SphereTile>();
     sideTris = new List<Triangle>();
     subTriangles = new List<Triangle>();
+
   }
   //Given the subdivided triangles, build the spheretile, which is made up of 12 triangles. 6 face, 6 side
   public void Build()
@@ -144,7 +144,14 @@ public class SphereTile
 
   public Hexagon ToHexagon()
   {
-    return new Hexagon(faceTris[0].v1, faceTris[0].v2, faceTris[0].v3, faceTris[1].v3, faceTris[2].v3, faceTris[3].v3, faceTris[4].v3);
+    Vector3[] verts = new Vector3[]{faceTris[0].v2, faceTris[0].v3, faceTris[1].v3, faceTris[2].v3, faceTris[3].v3, faceTris[4].v3};
+
+    Dictionary<Vector3, SphereTile> neighbs = new Dictionary<Vector3, SphereTile>();
+    
+
+    //Debug.Log(hexNeighbors.Count);
+
+    return new Hexagon(index, faceTris[0].v1, verts);
     /*
     Vector3 c = center;
     List<Vector3> vertices = new List<Vector3>(), toAdd = new List<Vector3>();

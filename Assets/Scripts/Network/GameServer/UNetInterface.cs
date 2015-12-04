@@ -18,7 +18,6 @@ public class UNetInterface : NetworkManager
 
   static string gameName;
   public static UNetInterface instance;
-  static NetworkClient client;
   //public static List<NetworkBus> clientBuses;
   public static List<NetworkConnection> clientConnections;
 
@@ -42,7 +41,7 @@ public class UNetInterface : NetworkManager
   {
     gameName = gn;
 
-    client = instance.StartHost();
+    myClient = instance.StartHost();
     Network.InitializeServer(32, 1337, !Network.HavePublicAddress());
     MasterServer.RegisterHost(gameID, gameName);
   }

@@ -1,28 +1,34 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum Direction
+{
+  Y,      // 0, 1
+  XY,     // 1, 1
+  X,      // 1, 0
+  NegY,   // 0, -1
+  NegXY,  // -1, -1
+  NegX,   // -1, 0
+  Count
+}
+
 [System.Serializable]
-public class Hexagon {
-  /*
-      w0 - world origin
-
-        2
-    1       3
-      center
-    6       4
-        5
-  */
-
+public class Hexagon
+{
+  public int index;
   public SerializableVector3 center, v1, v2, v3, v4, v5, v6;
+  public int[] neighbors;
 
-  public Hexagon(Vector3 c, Vector3 one, Vector3 two, Vector3 three, Vector3 four, Vector3 five, Vector3 six)
+  public Hexagon(int i, Vector3 c, Vector3[] verts)
   {
+    index = i;
+    neighbors = new int[]{-1,-1,-1,-1,-1,-1};
     center = c;
-    v1 = one;
-    v2 = two;
-    v3 = three;
-    v4 = four;
-    v5 = five;
-    v6 = six;
+    v1 = verts[0];
+    v2 = verts[1];
+    v3 = verts[2];
+    v4 = verts[3];
+    v5 = verts[4];
+    v6 = verts[5];
   }
 }

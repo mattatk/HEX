@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class WorldRenderer : MonoBehaviour
 {
-  public GameObject worldPrefab, textMeshPrefab;
+  public GameObject worldPrefab;
   //Zone currentZone;
   bool controlx;
   bool controly;

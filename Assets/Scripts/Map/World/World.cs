@@ -19,11 +19,13 @@ public class World
   public Season season;
   public AxisTilt tilt;
 
+  public SerializableVector3 origin;
+
   public List<HexTile> tiles;
 
   public World()
   {
-
+    origin = Vector3.zero;
   }
 
   public World(WorldSize s, WorldType t, Season se, AxisTilt at)
@@ -32,13 +34,14 @@ public class World
     type = t;
     season = se;
     tilt = at;
+    origin = Vector3.zero;
   }
 
-  public void AssignHeights(PolySphere s)  // Executed by the cacher
+  public void CacheHexes(PolySphere s)  // Executed by the cacher
   {
     tiles = new List<HexTile>();
 
-    foreach (Hexagon h in s.finalHexes)
+    foreach (Hexagon h in s.unitHexes)
     {
       tiles.Add(new HexTile(h));
     }
@@ -49,7 +52,7 @@ public class World
     if (tiles == null || tiles.Count == 0)
     {
       PolySphere sphere = new PolySphere(Vector3.zero, scale,subdivisions);
-      AssignHeights(sphere);
+      CacheHexes(sphere);
     }
     else
       Debug.Log("tiles not null during cache prep");

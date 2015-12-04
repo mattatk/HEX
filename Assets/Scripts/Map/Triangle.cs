@@ -7,8 +7,8 @@ public class Triangle
   public Vector3 v1, v2, v3, center;
   public int subdivisionLevel, index;
 
-  //public Triangle top, right, left;
-  //public Triangle instance, parent, childMid, childTop, childLeft, childRight;
+  public Triangle top, right, left;
+  public Triangle instance, parent, childMid, childTop, childLeft, childRight;
 
   public TriforcePosition triforcePosition;
 
@@ -40,16 +40,13 @@ public class Triangle
     index = -1;
   }
 
-  /*
   public void AssignNeighbors(Triangle nt, Triangle nr, Triangle nl)
   {
     top = nt;
     right = nr;
     left = nl;
   }
-  */
   
-  /*
   public void AssignChildren (Triangle cm, Triangle ct, Triangle cl, Triangle cr)
   {
     childMid = cm;
@@ -57,9 +54,7 @@ public class Triangle
     childLeft = cl;
     childRight = cr;
   }
-  */
 
-  /*
   public Triangle ReturnClosestChild(Triangle orgChild)
   { 
     float mag1 = (this.childTop.center - orgChild.center).sqrMagnitude,
@@ -85,9 +80,7 @@ public class Triangle
     Debug.Log(orgChild.index+": mag1=>"+ mag1+" mag2=>"+mag2+" mag3=>"+mag3);
     return null;  
   }
-  */
-
-  /*
+  
   public Triangle NeighborOne(Triangle orgTri)
   {
     //Find the two closest neighbors of this Triangle from the originalTri
@@ -114,13 +107,7 @@ public class Triangle
     Debug.Log(orgTri.index + ": mag1=>" + n1 + " mag2=>" + n2 + " mag3=>" + n3);
     return null;
   }
-  */
 
-  //B
-  //O
-  //U
-
-  /*
   public Triangle NeighborTwo(Triangle orgTri)
   {
     //Find the two closest neighbors of this Triangle from the originalTri
@@ -146,7 +133,7 @@ public class Triangle
     Debug.Log(orgTri.index + ": mag1=>" + n1 + " mag2=>" + n2 + " mag3=>" + n3);
     return null;
   }
-  */
+
   /*
   public Triforce OriginalToTriforce(List<Triforce> tfs)
   {

@@ -10,17 +10,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
-public enum Direction
-{
-  NorthEast,
-  East,
-  SouthEast,
-  SouthWest,
-  West,
-  NorthWest,
-  NumberOfDirections
-}
-
 public class Hex
 {
   private static float width, halfWidth, height, rowHeight;
@@ -61,9 +50,9 @@ public class Hex
   public static Direction RotateDirection(Direction direction, int amount)
   {
     //Let's make sure our directions stay within the enumerated values.
-    if (direction < Direction.NorthEast ||
-        direction > Direction.NorthWest ||
-        Mathf.Abs(amount) > (int)Direction.NorthWest)
+    if (direction < Direction.XY ||
+        direction > Direction.Y ||
+        Mathf.Abs(amount) > (int)Direction.Y)
     {
         throw new InvalidOperationException("Directions out of range.");
     }
@@ -71,9 +60,9 @@ public class Hex
    //Now we need to make sure direction stays within the proper range.
    //C# does not allow modulus operations on enums, so we have to convert to and from int.
 
-   int n_dir = (int)direction % (int)Direction.NumberOfDirections;
+   int n_dir = (int)direction % (int)Direction.Count;
 
-   if (n_dir < 0) n_dir = (int)Direction.NumberOfDirections + n_dir;
+   if (n_dir < 0) n_dir = (int)Direction.Count + n_dir;
        direction = (Direction)n_dir;
 
    return direction;
@@ -90,12 +79,12 @@ public class Hex
     {
       switch(direction)
       {
-        case Direction.NorthEast : tile.y += 1; break;
-        case Direction.East : tile.x += 1; break;
-        case Direction.SouthEast: tile.y -= 1; break;
-        case Direction.SouthWest: tile.y -= 1; tile.x -= 1; break;
-        case Direction.West: tile.x -= 1; break;
-        case Direction.NorthWest: tile.x -= 1; tile.y += 1; break;
+        case Direction.XY : tile.y += 1; break;
+        case Direction.X : tile.x += 1; break;
+        case Direction.NegY: tile.y -= 1; break;
+        case Direction.NegXY: tile.y -= 1; tile.x -= 1; break;
+        case Direction.NegX: tile.x -= 1; break;
+        case Direction.Y: tile.x -= 1; tile.y += 1; break;
         default: throw new InvalidOperationException("Invalid direction");
       }
     }
@@ -103,12 +92,12 @@ public class Hex
     {
       switch (direction)
       {
-        case Direction.NorthEast: tile.x += 1;  tile.y += 1; break;
-        case Direction.East: tile.x += 1; break;
-        case Direction.SouthEast: tile.x += 1; tile.y -= 1; break;
-        case Direction.SouthWest: tile.y -= 1;; break;
-        case Direction.West: tile.x -= 1; break;
-        case Direction.NorthWest: tile.y += 1; break;
+        case Direction.XY: tile.x += 1;  tile.y += 1; break;
+        case Direction.X: tile.x += 1; break;
+        case Direction.NegY: tile.x += 1; tile.y -= 1; break;
+        case Direction.NegXY: tile.y -= 1;; break;
+        case Direction.NegX: tile.x -= 1; break;
+        case Direction.Y: tile.y += 1; break;
         default: throw new InvalidOperationException("Invalid direction");
       }
     }
